@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/splashFragment">
+
+    <fragment
+        android:id="@+id/splashFragment"
+        android:name="com.akeel.aitbaar.fragments.SplashFragment"
+        android:label="fragment_splash"
+        tools:layout="@layout/fragment_splash" >
+        <action
+            android:id="@+id/action_splashFragment_to_chooseApp"
+            app:destination="@id/chooseApp"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true"/>
+    </fragment>
+    <fragment
+        android:id="@+id/chooseApp"
+        android:name="com.akeel.aitbaar.fragments.ChooseApp"
+        android:label="fragment_choose_app"
+        tools:layout="@layout/fragment_choose_app" />
+</navigation>
