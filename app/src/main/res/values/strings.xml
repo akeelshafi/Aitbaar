@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Aitbaar</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="splash_logo">splash logo</string>
+    <string name="top_header_app_name">Aitbaar</string>
+    <string name="top_header_app_tagline">Digital Ledger of Trust</string>
+    <string name="continue_as">Continue as</string>
+    <string name="customer">Customer</string>
+    <string name="vendor">Vendor</string>
+    <string name="i_am_a_customer">I am a customer</string>
+    <string name="i_am_a_vendor">I am a Vendor</string>
+    <string name="for_customers_amp_buyers"><![CDATA[For Customers & Buyers]]></string>
+    <string name="for_shops_amp_businesses"><![CDATA[For Shops & Businesses]]></string>
+    <string name="secured_with_aitbaar">Secured with Aitbaar</string>
 </resources>
