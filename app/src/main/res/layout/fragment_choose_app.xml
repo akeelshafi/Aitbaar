@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/aitbaar_background"
-    tools:context=".fragments.ChooseApp">
+    tools:context=".ui.common.ChooseAppFragment">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -117,7 +117,8 @@
                     android:textStyle="bold" />
 
                 <!-- ✅ Button -->
-                <!--<androidx.cardview.widget.CardView
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/btnCustomer"
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_marginTop="20dp"
@@ -128,30 +129,20 @@
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:paddingStart="12dp"
-                        android:paddingEnd="12dp"
-                        android:gravity="center_vertical">
+                        android:gravity="center">
 
                         <TextView
-                            android:id="@+id/btnCustomer"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Continue as"
+                            android:text="@string/i_am_a_customer"
                             android:textSize="16sp"
                             android:textStyle="bold"
                             android:textColor="#FFFFFF"
                             android:layout_centerVertical="true"/>
 
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_arrow_right"
-                            android:layout_alignParentEnd="true"
-                            android:tint="#FFFFFF"
-                            android:layout_centerVertical="true"/>
                     </RelativeLayout>
-                </androidx.cardview.widget.CardView>-->
-                <Button
+                </androidx.cardview.widget.CardView>
+               <!-- <Button
                     android:id="@+id/btnCustomer"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -159,13 +150,14 @@
                     android:backgroundTint="#3D7BFF"
                     android:text="I am a Customer"
                     android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    />-->
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
-                    android:text="For Customers &amp; Buyers"
+                    android:text="@string/for_customers_amp_buyers"
                     android:textColor="#9AA8BF"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -198,7 +190,7 @@
                     android:layout_width="68dp"
                     android:layout_height="68dp"
                     android:layout_marginTop="8dp"
-                    android:contentDescription="vendor icon"
+                    android:contentDescription="vendor_icon"
                     android:src="@drawable/store" />
 
                 <TextView
@@ -218,42 +210,33 @@
                     android:textStyle="bold" />
 
                 <!-- ✅ Button -->
-                <!-- <androidx.cardview.widget.CardView
-                     android:layout_width="match_parent"
-                     android:layout_height="52dp"
-                     android:layout_marginTop="25dp"
-                     app:cardCornerRadius="14dp"
-                     app:cardElevation="0dp"
-                     android:backgroundTint="#3D7BFF">
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/btnVendor"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_marginTop="20dp"
+                    app:cardCornerRadius="14dp"
+                    app:cardElevation="0dp"
+                    android:backgroundTint="#3D7BFF">
 
-                     <RelativeLayout
-                         android:layout_width="match_parent"
-                         android:layout_height="match_parent"
-                         android:paddingStart="16dp"
-                         android:paddingEnd="16dp"
-                         android:gravity="center_vertical">
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center">
 
-                         <TextView
-                             android:id="@+id/btnVendor"
-                             android:layout_width="wrap_content"
-                             android:layout_height="wrap_content"
-                             android:text="Continue as"
-                             android:textSize="16sp"
-                             android:textStyle="bold"
-                             android:textColor="#FFFFFF"
-                             android:layout_centerVertical="true"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/i_am_a_vendor"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="#FFFFFF"
+                            android:layout_centerVertical="true"/>
 
-                         <ImageView
-                             android:layout_width="20dp"
-                             android:layout_height="20dp"
-                             android:src="@drawable/ic_arrow_right"
-                             android:layout_alignParentEnd="true"
-                             android:tint="#FFFFFF"
-                             android:layout_centerVertical="true"/>
-                     </RelativeLayout>
-                 </androidx.cardview.widget.CardView>-->
+                    </RelativeLayout>
+                </androidx.cardview.widget.CardView>
 
-                <Button
+        <!--        <Button
                     android:id="@+id/btnVendor"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -262,13 +245,13 @@
                     android:text="I am a Vendor"
                     android:textSize="12sp"
                     android:textStyle="bold" />
-
+-->
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="18dp"
-                    android:text="For Shops &amp; Businesses"
+                    android:text="@string/for_shops_amp_businesses"
                     android:textColor="#9AA8BF"
                     android:textSize="12sp" />
             </LinearLayout>
@@ -276,7 +259,7 @@
         </androidx.cardview.widget.CardView>
 
         <!-- ✅ Footer -->
-        <TextView
+       <!-- <TextView
             android:id="@+id/tvFooter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -287,7 +270,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
-
+-->
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 
