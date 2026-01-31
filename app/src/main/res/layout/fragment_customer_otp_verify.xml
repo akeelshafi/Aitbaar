@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/aitbaar_background"
+    tools:context=".ui.common.auth.OtpVerifyFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- ✅ Back Button -->
+        <!--<ImageView
+            android:id="@+id/btnBackOtp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="18dp"
+            android:layout_marginTop="18dp"
+            android:contentDescription="Back"
+            android:padding="4dp"
+            android:src="@drawable/ic_back_arrow"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />-->
+
+        <!-- ✅ Top Logo + Name -->
+        <LinearLayout
+            android:id="@+id/topLogoSectionOtp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imgLogo"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="3dp"
+                android:contentDescription="logo"
+                android:src="@drawable/shield_aitbaar" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="-17dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvAppName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/top_header_app_name"
+                    android:textColor="#2B579A"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTagline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-4dp"
+                    android:text="@string/top_header_app_tagline"
+                    android:textColor="#7A8BA6"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ✅ Verify OTP Title -->
+        <TextView
+            android:id="@+id/tvVerifyOtp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Verify OTP"
+            android:textColor="#233C73"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topLogoSectionOtp" />
+
+        <!-- ✅ OTP Instruction -->
+        <TextView
+            android:id="@+id/tvOtpInstruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Enter the 4-digit code sent"
+            android:textColor="#7A8BA6"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvVerifyOtp" />
+
+        <!-- ✅ Phone Number -->
+        <TextView
+            android:id="@+id/tvOtpPhone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="+92 300 1234567"
+            android:textColor="#233C73"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvOtpInstruction" />
+
+        <!-- ✅ OTP Boxes Row -->
+        <LinearLayout
+            android:id="@+id/otpBoxRow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvOtpPhone">
+
+            <EditText
+                android:id="@+id/otp1"
+                style="@style/OtpBoxStyle"
+                android:layout_marginStart="12dp"
+                android:imeOptions="actionNext"
+                android:digits="0123456789"/>
+
+            <EditText
+                android:id="@+id/otp2"
+                style="@style/OtpBoxStyle"
+                android:layout_marginStart="10dp"
+                android:imeOptions="actionNext"
+                android:digits="0123456789"/>
+
+            <EditText
+                android:id="@+id/otp3"
+                style="@style/OtpBoxStyle"
+                android:layout_marginStart="10dp"
+                android:imeOptions="actionNext"
+                android:digits="0123456789"/>
+
+            <EditText
+                android:id="@+id/otp4"
+                style="@style/OtpBoxStyle"
+                android:layout_marginStart="10dp"
+                android:imeOptions="actionNext"
+                android:digits="0123456789"/>
+
+            <EditText
+                android:id="@+id/otp5"
+                style="@style/OtpBoxStyle"
+                android:layout_marginStart="10dp"
+                android:imeOptions="actionNext"
+                android:digits="0123456789"/>
+
+            <EditText
+                android:id="@+id/otp6"
+                style="@style/OtpBoxStyle"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="12dp"
+                android:imeOptions="actionDone"
+                android:digits="0123456789"/>
+
+        </LinearLayout>
+
+        <!-- ✅ Timer + Resend -->
+        <TextView
+            android:id="@+id/tvResend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="00:42  Resend Code"
+            android:textColor="#7A8BA6"
+            android:textSize="13sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/otpBoxRow" />
+
+        <!-- ✅ Verify Button -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/btnVerifyOtp"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="35dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvResend">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_gradient"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Verify"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- ✅ Footer -->
+        <TextView
+            android:id="@+id/tvFooter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:text="@string/secured_with_aitbaar"
+            android:textColor="#7A8BA6"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</FrameLayout>
