@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/aitbaar_background"
+    tools:context=".ui.customer.profile.CustomerCreateProfileFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!--   &lt;!&ndash; ✅ Back Button &ndash;&gt;
+           <ImageView
+               android:id="@+id/btnBackProfile"
+               android:layout_width="28dp"
+               android:layout_height="28dp"
+               android:padding="4dp"
+               android:src="@drawable/ic_back_arrow"
+               android:contentDescription="Back"
+               android:layout_marginStart="18dp"
+               android:layout_marginTop="18dp"
+               app:layout_constraintTop_toTopOf="parent"
+               app:layout_constraintStart_toStartOf="parent" />-->
+
+        <!-- ✅ Top Logo + Name -->
+        <LinearLayout
+            android:id="@+id/topLogoSectionProfile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imgLogo"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="3dp"
+                android:contentDescription="logo"
+                android:src="@drawable/shield_aitbaar" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="-17dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvAppName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/top_header_app_name"
+                    android:textColor="#2B579A"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTagline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-4dp"
+                    android:text="@string/top_header_app_tagline"
+                    android:textColor="#7A8BA6"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ✅ Title -->
+        <TextView
+            android:id="@+id/tvCreateProfileTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Create Profile"
+            android:textColor="#233C73"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/topLogoSectionProfile" />
+
+        <!-- ✅ Profile Photo Container -->
+        <FrameLayout
+            android:id="@+id/profilePhotoContainer"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_marginTop="25dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvCreateProfileTitle">
+
+            <!-- Outer circle -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="60dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/imgProfile"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="Profile Image"
+                    android:padding="4dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/user" />
+            </androidx.cardview.widget.CardView>
+
+            <!-- Camera icon -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/btnCamera"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="2dp"
+                android:layout_marginBottom="2dp"
+                app:cardBackgroundColor="#3D7BFF"
+                app:cardCornerRadius="21dp"
+                app:cardElevation="2dp">
+
+                <ImageView
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Camera"
+                    android:src="@drawable/camera"
+                    app:tint="#FFFFFF" />
+            </androidx.cardview.widget.CardView>
+
+        </FrameLayout>
+
+        <!-- ✅ Full Name Field -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardFullName"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="28dp"
+            android:layout_marginEnd="35dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profilePhotoContainer">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="User"
+                    android:src="@drawable/profile_user"
+                    app:tint="#7A8BA6" />
+
+                <EditText
+                    android:id="@+id/etFullName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Full Name"
+                    android:inputType="textPersonName"
+                    android:textColor="#233C73"
+                    android:textColorHint="#9AA8BF"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- ✅ Phone Field -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardPhone"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="35dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardFullName">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="Phone"
+                    android:src="@drawable/ic_phone"
+                    app:tint="#7A8BA6" />
+
+                <EditText
+                    android:id="@+id/etPhone"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:enabled="false"
+                    android:hint="+92 300 1234567"
+                    android:textColor="#233C73"
+                    android:textColorHint="#9AA8BF"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- ✅ Email Field (Optional) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardEmail"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="35dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardPhone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="Email"
+                    android:src="@drawable/email"
+                    app:tint="#7A8BA6" />
+
+                <EditText
+                    android:id="@+id/etEmail"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Email"
+                    android:inputType="textEmailAddress"
+                    android:textColor="#233C73"
+                    android:textColorHint="#9AA8BF"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- ✅ Address Field (Optional) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardAddress"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="35dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardEmail">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginEnd="10dp"
+                    android:contentDescription="Location"
+                    android:src="@drawable/location"
+                    app:tint="#7A8BA6" />
+
+                <EditText
+                    android:id="@+id/etAddress"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:hint="Address"
+                    android:inputType="textPostalAddress"
+                    android:textColor="#233C73"
+                    android:textColorHint="#9AA8BF"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- ✅ Create Profile Button -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/btnCreateProfile"
+            android:layout_width="0dp"
+            android:layout_height="54dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="26dp"
+            android:layout_marginEnd="35dp"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardCornerRadius="14dp"
+            app:cardElevation="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardAddress">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_button_gradient"
+                android:gravity="center">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Create Profile"
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</FrameLayout>
