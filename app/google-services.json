@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "200725107638",
+    "project_id": "aitbaar-18cfa",
+    "storage_bucket": "aitbaar-18cfa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:200725107638:android:6b08b99936a29209eb2717",
+        "android_client_info": {
+          "package_name": "com.akeel.aitbaar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCArqNHYuc3TSD3dCtJOez1rei7Hue5jVg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
