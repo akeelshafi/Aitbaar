@@ -11,18 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!--   &lt;!&ndash; ✅ Back Button &ndash;&gt;
-           <ImageView
-               android:id="@+id/btnBackProfile"
-               android:layout_width="28dp"
-               android:layout_height="28dp"
-               android:padding="4dp"
-               android:src="@drawable/ic_back_arrow"
-               android:contentDescription="Back"
-               android:layout_marginStart="18dp"
-               android:layout_marginTop="18dp"
-               app:layout_constraintTop_toTopOf="parent"
-               app:layout_constraintStart_toStartOf="parent" />-->
 
         <!-- ✅ Top Logo + Name -->
         <LinearLayout
@@ -74,7 +62,6 @@
             android:id="@+id/tvCreateProfileTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
             android:text="Create Profile"
             android:textColor="#233C73"
             android:textSize="30sp"
