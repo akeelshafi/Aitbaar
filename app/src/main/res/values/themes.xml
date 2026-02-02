@@ -17,6 +17,45 @@
         <item name="android:textColor">#233C73</item>
     </style>
 
+    <!-- ✅ Card style for input fields -->
+    <style name="AitbaarInputCardStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">52dp</item>
+        <item name="cardCornerRadius">12dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardBackgroundColor">#FFFFFF</item>
+    </style>
+
+    <!-- ✅ Row layout inside the card -->
+    <style name="AitbaarInputRowStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">14dp</item>
+        <item name="android:paddingEnd">14dp</item>
+    </style>
+
+    <!-- ✅ Icon style used in each input field -->
+    <style name="AitbaarInputIconStyle">
+        <item name="android:layout_width">20dp</item>
+        <item name="android:layout_height">20dp</item>
+        <item name="android:layout_marginEnd">10dp</item>
+        <item name="android:tint">#7A8BA6</item>
+    </style>
+
+    <!-- ✅ EditText common style -->
+    <style name="AitbaarEditTextStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:background">@null</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">#233C73</item>
+        <item name="android:textColorHint">#9AA8BF</item>
+    </style>
+
+
 
     <style name="Theme.Aitbaar" parent="Base.Theme.Aitbaar" />
 </resources>
