@@ -93,9 +93,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:contentDescription="Profile Image"
-                    android:padding="4dp"
-                    android:scaleType="centerInside"
+                    android:background="@drawable/circle_white"
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop"
                     android:src="@drawable/user" />
+
             </androidx.cardview.widget.CardView>
 
             <!-- Camera icon -->
