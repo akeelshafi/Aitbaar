@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.akeel.aitbaar.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
@@ -29,7 +30,27 @@ class CustomerCreateProfileFragment : Fragment() {
     private var savedImagePath: String? = null
     private lateinit var imgProfile: ImageView
 
+    // ✅ Gallery picker
+    private val pickImageFromGallery =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            if (uri != null) {
+                val bitmap =
+                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
+                imgProfile.setImageBitmap(bitmap)
+                savedImagePath = saveBitmapToInternalStorage(bitmap)
+            }
+        }
 
+    // ✅ Camera capture
+    private val takePhotoFromCamera =
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
+            if (bitmap != null) {
+                imgProfile.setImageBitmap(bitmap)
+                savedImagePath = saveBitmapToInternalStorage(bitmap)
+            }
+        }
+
+    // ✅ Request camera permission
     private val requestCameraPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
             if (granted) {
@@ -37,31 +58,6 @@ class CustomerCreateProfileFragment : Fragment() {
             } else {
                 Toast.makeText(requireContext(), "Camera permission denied ❌", Toast.LENGTH_SHORT)
                     .show()
-            }
-        }
-
-
-    // ✅ Gallery picker (modern)
-    private val pickImageFromGallery =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            if (uri != null) {
-                val bitmap =
-                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
-                imgProfile.setImageBitmap(bitmap)
-
-                // ✅ Save locally
-                savedImagePath = saveBitmapToInternalStorage(bitmap)
-            }
-        }
-
-    // ✅ Camera capture (returns Bitmap)
-    private val takePhotoFromCamera =
-        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
-            if (bitmap != null) {
-                imgProfile.setImageBitmap(bitmap)
-
-                // ✅ Save locally
-                savedImagePath = saveBitmapToInternalStorage(bitmap)
             }
         }
 
@@ -92,15 +88,13 @@ class CustomerCreateProfileFragment : Fragment() {
             return
         }
 
-        // ✅ Set phone
+        // ✅ Auto phone
         etPhone.setText(user.phoneNumber ?: "")
 
-        // ✅ Camera Button Click
-        btnCamera.setOnClickListener {
-            showImagePickerDialog()
-        }
+        // ✅ Choose Image
+        btnCamera.setOnClickListener { showImagePickerDialog() }
 
-        // ✅ Save Profile to Firestore
+        // ✅ Save Profile
         btnCreateProfile.setOnClickListener {
 
             val name = etFullName.text.toString().trim()
@@ -108,12 +102,12 @@ class CustomerCreateProfileFragment : Fragment() {
             val email = etEmail.text.toString().trim()
 
             if (name.isEmpty()) {
-                Toast.makeText(requireContext(), "Enter your full name", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter full name", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (address.isEmpty()) {
-                Toast.makeText(requireContext(), "Enter your address", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Enter address", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -127,7 +121,7 @@ class CustomerCreateProfileFragment : Fragment() {
                 "name" to name,
                 "address" to address,
                 "email" to email, // optional
-                "profileImagePath" to (savedImagePath ?: ""), // ✅ local path saved (optional)
+                "profileImagePath" to (savedImagePath ?: ""),
                 "createdAt" to FieldValue.serverTimestamp(),
                 "updatedAt" to FieldValue.serverTimestamp()
             )
@@ -138,6 +132,15 @@ class CustomerCreateProfileFragment : Fragment() {
                 .addOnSuccessListener {
                     Toast.makeText(requireContext(), "Customer Profile Saved ✅", Toast.LENGTH_SHORT)
                         .show()
+
+                    // ✅ Go Dashboard + remove auth/profile screens from backstack
+                    findNavController().navigate(
+                        R.id.customerDashboardFragment,
+                        null,
+                        androidx.navigation.NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_graph, true)
+                            .build()
+                    )
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG)
@@ -146,7 +149,7 @@ class CustomerCreateProfileFragment : Fragment() {
         }
     }
 
-    // ✅ Dialog Camera / Gallery
+    // ✅ Camera / Gallery Dialog
     private fun showImagePickerDialog() {
         val options = arrayOf("Camera", "Gallery")
 
@@ -154,17 +157,14 @@ class CustomerCreateProfileFragment : Fragment() {
             .setTitle("Choose Image")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> {
-                        requestCameraPermission.launch(android.Manifest.permission.CAMERA)
-                    }
-
+                    0 -> requestCameraPermission.launch(android.Manifest.permission.CAMERA)
                     1 -> pickImageFromGallery.launch("image/*")
                 }
             }
             .show()
     }
 
-    // ✅ Save bitmap locally in internal storage
+    // ✅ Save image locally
     private fun saveBitmapToInternalStorage(bitmap: Bitmap): String {
         val user = auth.currentUser ?: return ""
 
