@@ -5,26 +5,33 @@
     android:id="@+id/nav_graph"
     app:startDestination="@id/splashFragment">
 
+    <!-- ✅ Splash -->
     <fragment
         android:id="@+id/splashFragment"
         android:name="com.akeel.aitbaar.ui.common.SplashFragment"
         android:label="fragment_splash"
         tools:layout="@layout/fragment_splash">
+
         <action
             android:id="@+id/action_splashFragment_to_chooseApp"
             app:destination="@id/chooseApp"
             app:popUpTo="@id/splashFragment"
             app:popUpToInclusive="true" />
     </fragment>
+
+    <!-- ✅ Choose Role -->
     <fragment
         android:id="@+id/chooseApp"
         android:name="com.akeel.aitbaar.ui.common.ChooseAppFragment"
         android:label="fragment_choose_app"
         tools:layout="@layout/fragment_choose_app">
+
         <action
             android:id="@+id/action_chooseApp_to_customerPhoneLoginFragment"
             app:destination="@id/customerPhoneLoginFragment" />
     </fragment>
+
+    <!-- ✅ Phone Login (Common for Customer & Vendor) -->
     <fragment
         android:id="@+id/customerPhoneLoginFragment"
         android:name="com.akeel.aitbaar.ui.common.auth.PhoneLoginFragment"
@@ -39,11 +46,14 @@
             android:id="@+id/action_customerPhoneLoginFragment_to_customerOtpVerifyFragment2"
             app:destination="@id/customerOtpVerifyFragment2" />
     </fragment>
+
+    <!-- ✅ OTP Verify (Common for Customer & Vendor) -->
     <fragment
         android:id="@+id/customerOtpVerifyFragment2"
         android:name="com.akeel.aitbaar.ui.common.auth.OtpVerifyFragment"
         android:label="fragment_customer_otp_verify"
         tools:layout="@layout/fragment_customer_otp_verify">
+
         <argument
             android:name="verificationId"
             app:argType="string" />
@@ -56,25 +66,58 @@
             android:name="userRole"
             app:argType="string" />
 
+        <!-- ✅ go to customer profile -->
         <action
             android:id="@+id/action_customerOtpVerifyFragment2_to_customerCreateProfileFragment"
             app:destination="@id/customerCreateProfileFragment" />
+
+        <!-- ✅ go to vendor profile -->
         <action
             android:id="@+id/action_customerOtpVerifyFragment2_to_vendorCreateProfileFragment"
             app:destination="@id/vendorCreateProfileFragment" />
 
+        <!-- ✅ self navigation for instant OTP screen update -->
         <action
             android:id="@+id/action_customerOtpVerifyFragment2_self"
             app:destination="@id/customerOtpVerifyFragment2" />
     </fragment>
+
+    <!-- ✅ Customer Create Profile -->
     <fragment
         android:id="@+id/customerCreateProfileFragment"
         android:name="com.akeel.aitbaar.ui.customer.profile.CustomerCreateProfileFragment"
         android:label="fragment_customer_create_profile"
-        tools:layout="@layout/fragment_customer_create_profile" />
+        tools:layout="@layout/fragment_customer_create_profile">
+
+        <action
+            android:id="@+id/action_customerCreateProfileFragment_to_customerDashboardFragment"
+            app:destination="@id/customerDashboardFragment" />
+    </fragment>
+
+    <!-- ✅ Vendor Create Profile -->
     <fragment
         android:id="@+id/vendorCreateProfileFragment"
         android:name="com.akeel.aitbaar.ui.vendor.profile.VendorCreateProfileFragment"
         android:label="fragment_vendor_create_profile"
-        tools:layout="@layout/fragment_vendor_create_profile" />
+        tools:layout="@layout/fragment_vendor_create_profile">
+
+        <action
+            android:id="@+id/action_vendorCreateProfileFragment_to_vendorDashboardFragment"
+            app:destination="@id/vendorDashboardFragment" />
+    </fragment>
+
+    <!-- ✅ Customer Dashboard -->
+    <fragment
+        android:id="@+id/customerDashboardFragment"
+        android:name="com.akeel.aitbaar.ui.customer.dashboard.CustomerDashboardFragment"
+        android:label="fragment_customer_dashboard"
+        tools:layout="@layout/fragment_customer_dashboard" />
+
+    <!-- ✅ Vendor Dashboard -->
+    <fragment
+        android:id="@+id/vendorDashboardFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.dashboard.VendorDashboardFragment"
+        android:label="fragment_vendor_dashboard"
+        tools:layout="@layout/fragment_vendor_dashboard" />
+
 </navigation>
