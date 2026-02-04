@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/vendorItemCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="14dp"
+    app:cardElevation="0dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="14dp">
+
+        <!-- ✅ Circle Initials -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardInitials"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            app:cardCornerRadius="22dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#FFD7A3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <TextView
+                android:id="@+id/tvInitials"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="AT"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#233C73"
+                android:gravity="center" />
+        </androidx.cardview.widget.CardView>
+
+        <!-- ✅ Vendor Name -->
+        <TextView
+            android:id="@+id/tvVendorName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Ahmad Traders"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="#233C73"
+            android:layout_marginStart="12dp"
+            app:layout_constraintStart_toEndOf="@id/cardInitials"
+            app:layout_constraintTop_toTopOf="@id/cardInitials"
+            app:layout_constraintEnd_toStartOf="@id/tvAmount" />
+
+        <!-- ✅ Small Due Text -->
+        <TextView
+            android:id="@+id/tvDueInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Rs 3,200 Due | Today"
+            android:textSize="12sp"
+            android:textColor="#7A8BA6"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintStart_toEndOf="@id/cardInitials"
+            app:layout_constraintTop_toBottomOf="@id/tvVendorName"
+            app:layout_constraintEnd_toStartOf="@id/tvAmount" />
+
+        <!-- ✅ Amount -->
+        <TextView
+            android:id="@+id/tvAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Rs 3,200"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:textColor="#E85A5A"
+            app:layout_constraintEnd_toStartOf="@id/ivArrow"
+            app:layout_constraintTop_toTopOf="@id/cardInitials" />
+
+        <!-- ✅ Due label -->
+        <TextView
+            android:id="@+id/tvDueLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Due"
+            android:textSize="12sp"
+            android:textColor="#7A8BA6"
+            app:layout_constraintEnd_toStartOf="@id/ivArrow"
+            app:layout_constraintTop_toBottomOf="@id/tvAmount"
+            android:layout_marginTop="2dp" />
+
+        <!-- ✅ Arrow -->
+        <ImageView
+            android:id="@+id/ivArrow"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/right_arrow"
+            android:contentDescription="Arrow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:tint="#9AA8BF" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
