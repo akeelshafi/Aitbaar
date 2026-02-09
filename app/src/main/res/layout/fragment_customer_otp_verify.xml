@@ -89,7 +89,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="Enter the 4-digit code sent"
+            android:text="Enter the 6-digit code sent"
             android:textColor="#7A8BA6"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -127,6 +127,7 @@
                 style="@style/OtpBoxStyle"
                 android:layout_marginStart="12dp"
                 android:imeOptions="actionNext"
+                android:maxLength="1"
                 android:digits="0123456789"/>
 
             <EditText
@@ -134,6 +135,7 @@
                 style="@style/OtpBoxStyle"
                 android:layout_marginStart="10dp"
                 android:imeOptions="actionNext"
+                android:maxLength="1"
                 android:digits="0123456789"/>
 
             <EditText
@@ -141,6 +143,7 @@
                 style="@style/OtpBoxStyle"
                 android:layout_marginStart="10dp"
                 android:imeOptions="actionNext"
+                android:maxLength="1"
                 android:digits="0123456789"/>
 
             <EditText
@@ -148,6 +151,7 @@
                 style="@style/OtpBoxStyle"
                 android:layout_marginStart="10dp"
                 android:imeOptions="actionNext"
+                android:maxLength="1"
                 android:digits="0123456789"/>
 
             <EditText
@@ -155,6 +159,7 @@
                 style="@style/OtpBoxStyle"
                 android:layout_marginStart="10dp"
                 android:imeOptions="actionNext"
+                android:maxLength="1"
                 android:digits="0123456789"/>
 
             <EditText
@@ -162,6 +167,7 @@
                 style="@style/OtpBoxStyle"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="12dp"
+                android:maxLength="1"
                 android:imeOptions="actionDone"
                 android:digits="0123456789"/>
 
@@ -202,12 +208,14 @@
                 android:gravity="center">
 
                 <TextView
+                    android:id="@+id/tvVerifyBtnText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Verify"
                     android:textColor="#FFFFFF"
                     android:textSize="18sp"
                     android:textStyle="bold" />
+
             </RelativeLayout>
 
         </androidx.cardview.widget.CardView>
