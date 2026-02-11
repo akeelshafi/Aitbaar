@@ -122,11 +122,28 @@
         <action
             android:id="@+id/action_vendorDashboardFragment_to_allTransactionsFragment"
             app:destination="@id/allTransactionsFragment" />
+        <action
+            android:id="@+id/action_vendorDashboardFragment_to_addTransactionFragment"
+            app:destination="@id/addTransactionFragment" />
     </fragment>
     <fragment
         android:id="@+id/allTransactionsFragment"
-        android:name="com.akeel.aitbaar.ui.vendor.AllTransactionsFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.transaction.AllTransactionsFragment"
         android:label="fragment_all_transactions"
         tools:layout="@layout/fragment_all_transactions" />
+    <fragment
+        android:id="@+id/addTransactionFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.transaction.AddTransactionFragment"
+        android:label="fragment_add_transaction"
+        tools:layout="@layout/fragment_add_transaction" >
+        <action
+            android:id="@+id/action_addTransactionFragment_to_selectCustomerFragment"
+            app:destination="@id/selectCustomerFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/selectCustomerFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.SelectCustomerFragment"
+        android:label="fragment_select_customer"
+        tools:layout="@layout/fragment_select_customer" />
 
 </navigation>
