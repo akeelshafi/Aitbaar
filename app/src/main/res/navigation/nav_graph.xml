@@ -142,8 +142,23 @@
     </fragment>
     <fragment
         android:id="@+id/selectCustomerFragment"
-        android:name="com.akeel.aitbaar.ui.vendor.SelectCustomerFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.transaction.SelectCustomerFragment"
         android:label="fragment_select_customer"
         tools:layout="@layout/fragment_select_customer" />
+    <fragment
+        android:id="@+id/customersFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.customers.CustomersFragment"
+        android:label="fragment_customers"
+        tools:layout="@layout/fragment_customers" />
+    <fragment
+        android:id="@+id/confirmFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.confirm.ConfirmFragment"
+        android:label="fragment_confirm"
+        tools:layout="@layout/fragment_confirm" />
+    <fragment
+        android:id="@+id/vendorProfileFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.profile.VendorProfileFragment"
+        android:label="fragment_vendor_profile"
+        tools:layout="@layout/fragment_vendor_profile" />
 
 </navigation>
