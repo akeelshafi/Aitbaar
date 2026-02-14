@@ -4,5 +4,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="aitbaar_blue">#2B579A</color>
     <color name="gray">#7A8BA6</color>
+    <color name="blue">#3D7BFF</color>
+    <color name="red">#ff0000</color>
+
 
 </resources>
