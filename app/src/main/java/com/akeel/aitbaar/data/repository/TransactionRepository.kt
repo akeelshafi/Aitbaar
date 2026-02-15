@@ -3,6 +3,7 @@ package com.akeel.aitbaar.data.repository
 import android.content.Context
 import com.akeel.aitbaar.data.local.db.AppDatabase
 import com.akeel.aitbaar.data.local.entity.TransactionEntity
+import com.akeel.aitbaar.data.model.CustomerBalance
 import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -54,4 +55,8 @@ object TransactionRepository {
             }
         }
     }
+    fun getCustomerBalances(): Flow<List<CustomerBalance>> {
+        return dao.getCustomerBalances()
+    }
+
 }
