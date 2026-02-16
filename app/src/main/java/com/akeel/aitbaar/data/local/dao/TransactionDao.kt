@@ -1,0 +1,40 @@
+package com.akeel.aitbaar.data.local.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.akeel.aitbaar.data.local.entity.TransactionEntity
+import com.akeel.aitbaar.data.model.CustomerBalance
+import com.akeel.aitbaar.data.model.Status
+import kotlinx.coroutines.flow.Flow
+
+@Dao
+interface TransactionDao {
+    // 🔹 Insert new transaction
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertTransaction(transaction: TransactionEntity)
+
+    // 🔹 Get all transactions (latest first)
+    @Query("SELECT * FROM transactions ORDER BY id DESC")
+    fun getAllTransactions(): Flow<List<TransactionEntity>>
+
+    @Query("UPDATE transactions SET status = :newStatus WHERE id = :transactionId")
+    suspend fun updateTransactionStatus(transactionId: Int, newStatus: Status)
+
+    @Query("""
+SELECT customerName AS name,
+SUM(
+    CASE 
+        WHEN status != 'REJECTED' THEN amount
+        ELSE 0
+    END
+) AS balance
+FROM transactions
+GROUP BY customerName
+ORDER BY name ASC
+""")
+    fun getCustomerBalances(): Flow<List<CustomerBalance>>
+
+
+}
