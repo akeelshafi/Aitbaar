@@ -24,12 +24,12 @@ object TransactionRepository {
     suspend fun addTransaction(transaction: Transaction) {
         val entity =
             TransactionEntity(
-            customerName = transaction.customerName,
-            item = transaction.item,
-            amount = transaction.amount,
-            date = transaction.date,
-            status = transaction.status
-        )
+                customerName = transaction.customerName,
+                item = transaction.item,
+                amount = transaction.amount,
+                date = transaction.date,
+                status = transaction.status
+            )
         dao.insertTransaction(entity)
     }
 
@@ -55,8 +55,25 @@ object TransactionRepository {
             }
         }
     }
+
     fun getCustomerBalances(): Flow<List<CustomerBalance>> {
         return dao.getCustomerBalances()
     }
+
+    fun getTransactionsForCustomer(name: String): Flow<List<Transaction>> {
+        return dao.getTransactionsForCustomer(name).map { list ->
+            list.map { entity ->
+                Transaction(
+                    id = entity.id,
+                    customerName = entity.customerName,
+                    item = entity.item,
+                    amount = entity.amount,
+                    date = entity.date,
+                    status = entity.status
+                )
+            }
+        }
+    }
+
 
 }
