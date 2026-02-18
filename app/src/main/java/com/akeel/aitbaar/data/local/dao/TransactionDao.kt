@@ -36,5 +36,10 @@ ORDER BY name ASC
 """)
     fun getCustomerBalances(): Flow<List<CustomerBalance>>
 
+    @Query("SELECT * FROM transactions WHERE customerName = :customerName ORDER BY id DESC")
+    fun getTransactionsForCustomer(customerName: String): Flow<List<TransactionEntity>>
+
+
+
 
 }
