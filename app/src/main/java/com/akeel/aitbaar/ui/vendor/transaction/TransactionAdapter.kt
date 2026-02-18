@@ -10,7 +10,7 @@ import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
 
 class TransactionAdapter(
-    private val list: List<Transaction>
+    private var list: List<Transaction>
 ) : RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
 
      class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -57,8 +57,19 @@ class TransactionAdapter(
                 holder.button.visibility = View.VISIBLE
                 holder.button.text = "Correct"
             }
+
+            Status.PAID -> {
+                holder.status.text = "PAID"
+                holder.status.setBackgroundResource(R.drawable.bg_status_paid)
+                holder.button.visibility = View.GONE
+            }
         }
     }
 
     override fun getItemCount(): Int = list.size
+
+    fun submitList(newList: List<Transaction>) {
+        list = newList
+        notifyDataSetChanged()
+    }
 }
