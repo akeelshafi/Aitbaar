@@ -12,6 +12,7 @@ data class Transaction(
 enum class Status {
     PENDING,
     ACCEPTED,
-    REJECTED
+    REJECTED,
+    PAID
 }
 
