@@ -21,6 +21,7 @@ class CustomerLedgerFragment : Fragment(R.layout.fragment_customer_ledger) {
     private lateinit var recycler: RecyclerView
     private var allTransactions: List<Transaction> = emptyList()
     private lateinit var tvTotalAmount: TextView
+    private lateinit var tvCustomerName: TextView
 
 
     private fun updateTabUI(selected: TextView, vararg others: TextView) {
@@ -48,6 +49,8 @@ class CustomerLedgerFragment : Fragment(R.layout.fragment_customer_ledger) {
 
         // 🔹 Get customer name from navigation
         customerName = arguments?.getString("customerName") ?: ""
+        tvCustomerName = view.findViewById(R.id.tvCustomerName)
+        tvCustomerName.text = customerName
 
         // 🔹 RecyclerView setup
         recycler = view.findViewById(R.id.rvLedger)
