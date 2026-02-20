@@ -59,7 +59,7 @@ class VendorDashboardFragment : Fragment() {
             TransactionRepository.getAllTransactions().collect { transactions ->
 
                 // Show only latest 3 on dashboard
-                val recentTransactions = transactions.take(6)
+                val recentTransactions = transactions.take(4)
 
                 recycler.adapter = TransactionAdapter(recentTransactions)
             }
