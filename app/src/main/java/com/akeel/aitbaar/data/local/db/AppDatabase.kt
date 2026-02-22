@@ -7,18 +7,23 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.akeel.aitbaar.data.local.StatusConverter
+import com.akeel.aitbaar.data.local.dao.PaymentDao
 import com.akeel.aitbaar.data.local.dao.TransactionDao
+import com.akeel.aitbaar.data.local.entity.PaymentEntity
 import com.akeel.aitbaar.data.local.entity.TransactionEntity
 
 @Database(
-    entities = [TransactionEntity::class],
-    version = 1,
+    entities = [TransactionEntity::class,
+        PaymentEntity::class],
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(StatusConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun transactionDao(): TransactionDao
+    abstract fun paymentDao(): PaymentDao
+
 
     companion object {
         @Volatile
@@ -30,13 +35,15 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "aitbaar_db"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
 
                 INSTANCE = instance
                 instance
             }
         }
     }
+
 
 
 }
