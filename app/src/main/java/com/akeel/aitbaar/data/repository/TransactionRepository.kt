@@ -8,16 +8,21 @@ import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import com.akeel.aitbaar.data.local.dao.PaymentDao
+import com.akeel.aitbaar.data.local.entity.PaymentEntity
 
 
 object TransactionRepository {
 
     private lateinit var dao: com.akeel.aitbaar.data.local.dao.TransactionDao
+    private lateinit var paymentDao: PaymentDao
 
     // 🔹 Initialize database (call once in app)
     fun init(context: Context) {
         val db = AppDatabase.getDatabase(context)
         dao = db.transactionDao()
+        paymentDao = db.paymentDao()
+
     }
 
     // 🔹 Insert transaction into Room
@@ -75,5 +80,19 @@ object TransactionRepository {
         }
     }
 
+    suspend fun addPayment(customerName: String, amount: Int, date: String) {
+        val payment = PaymentEntity(
+            customerName = customerName,
+            amount = amount,
+            date = date
+        )
+        paymentDao.insertPayment(payment)
+    }
+
+    fun getPaymentsForCustomer(name: String) =
+        paymentDao.getPaymentsForCustomer(name)
+
 
 }
+
+
