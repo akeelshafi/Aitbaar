@@ -23,23 +23,24 @@ interface TransactionDao {
     suspend fun updateTransactionStatus(transactionId: Int, newStatus: Status)
 
     @Query("""
-SELECT customerName AS name,
-SUM(
-    CASE 
-        WHEN status != 'REJECTED' THEN amount
-        ELSE 0
-    END
+SELECT t.customerName AS name,
+(
+    SUM(CASE WHEN t.status = 'ACCEPTED' THEN t.amount ELSE 0 END)
+    -
+    IFNULL((
+        SELECT SUM(p.amount)
+        FROM payments p
+        WHERE p.customerName = t.customerName
+    ), 0)
 ) AS balance
-FROM transactions
-GROUP BY customerName
-ORDER BY name ASC
+FROM transactions t
+GROUP BY t.customerName
+ORDER BY t.customerName ASC
 """)
     fun getCustomerBalances(): Flow<List<CustomerBalance>>
 
     @Query("SELECT * FROM transactions WHERE customerName = :customerName ORDER BY id DESC")
     fun getTransactionsForCustomer(customerName: String): Flow<List<TransactionEntity>>
-
-
 
 
 }
