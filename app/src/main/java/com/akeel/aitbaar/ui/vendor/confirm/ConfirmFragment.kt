@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.navigation.fragment.findNavController
 import com.akeel.aitbaar.R
 import com.akeel.aitbaar.ui.vendor.VendorNavHelper
 
