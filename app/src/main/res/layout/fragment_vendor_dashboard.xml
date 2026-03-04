@@ -23,34 +23,29 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
-                android:id="@+id/imgLogo"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:layout_marginTop="3dp"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
                 android:contentDescription="logo"
                 android:src="@drawable/shield_aitbaar" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="-17dp"
+                android:layout_marginStart="-14dp"
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvAppName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/top_header_app_name"
+                    android:text="Aitbaar"
                     android:textColor="#2B579A"
-                    android:textSize="28sp"
+                    android:textSize="26sp"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/tvTagline"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="-4dp"
-                    android:text="@string/top_header_app_tagline"
+                    android:text="Digital Ledger of Trust"
                     android:textColor="#7A8BA6"
                     android:textSize="12sp" />
             </LinearLayout>
