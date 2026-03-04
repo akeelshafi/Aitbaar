@@ -99,6 +99,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Accepted"
+                android:textStyle="bold"
                 android:textColor="#7A8BA6"
                 android:textSize="16sp" />
 
@@ -109,6 +110,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Rejected"
+                android:textStyle="bold"
                 android:textColor="#7A8BA6"
                 android:textSize="16sp" />
         </LinearLayout>
