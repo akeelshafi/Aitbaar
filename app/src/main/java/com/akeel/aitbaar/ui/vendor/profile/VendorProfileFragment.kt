@@ -36,6 +36,7 @@ class VendorProfileFragment : Fragment() {
         view.findViewById<ImageView>(R.id.iconProfile)
             .setColorFilter(requireContext().getColor(R.color.blue))
 
+
     }
 
 }
