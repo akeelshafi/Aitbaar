@@ -1,4 +1,4 @@
-package com.akeel.aitbaar.ui.vendor.customers
+package com.akeel.aitbaar.ui.vendor.payment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -7,13 +7,10 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.akeel.aitbaar.R
 import com.akeel.aitbaar.data.repository.TransactionRepository
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
