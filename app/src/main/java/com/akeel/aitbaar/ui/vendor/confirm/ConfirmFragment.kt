@@ -100,11 +100,13 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm) {
                 updateTabUI(tabPending, tabAccepted, tabRejected)
                 moveIndicator(tabPending, animate)
             }
+
             1 -> {
                 adapter.submitList(allTransactions.filter { it.status == Status.ACCEPTED })
                 updateTabUI(tabAccepted, tabPending, tabRejected)
                 moveIndicator(tabAccepted, animate)
             }
+
             2 -> {
                 adapter.submitList(allTransactions.filter { it.status == Status.REJECTED })
                 updateTabUI(tabRejected, tabPending, tabAccepted)
