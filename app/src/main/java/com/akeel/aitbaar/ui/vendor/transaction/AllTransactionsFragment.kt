@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
@@ -60,11 +61,19 @@ class AllTransactionsFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             TransactionRepository.getAllTransactions().collect { transactions ->
 
-                // show FULL list here (no take(3))
-                recycler.adapter = TransactionAdapter(transactions)
+                recycler.adapter = TransactionAdapter(transactions) { transaction ->
+
+                    val bundle = Bundle().apply {
+                        putString("transactionId", transaction.id.toString())
+                    }
+
+                    findNavController().navigate(
+                        R.id.addTransactionFragment,
+                        bundle
+                    )
+                }
             }
         }
-
     }
 
 }

@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
@@ -41,7 +42,17 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm) {
         recycler = view.findViewById(R.id.rvConfirmTransactions)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
-        adapter = TransactionAdapter(emptyList())
+        adapter = TransactionAdapter(emptyList()) { transaction ->
+
+            val bundle = Bundle().apply {
+                putString("transactionId", transaction.id.toString())
+            }
+
+            findNavController().navigate(
+                R.id.addTransactionFragment,
+                bundle
+            )
+        }
         recycler.adapter = adapter
 
         observeTransactions()

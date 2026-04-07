@@ -2,9 +2,7 @@ package com.akeel.aitbaar.ui.vendor.transaction
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
@@ -13,27 +11,15 @@ import com.akeel.aitbaar.R
 import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
 import com.akeel.aitbaar.data.repository.TransactionRepository
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-class AddTransactionFragment : Fragment() {
+class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
     private var selectedCustomerName: String? = null
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add_transaction, container, false)
-    }
+    private var isEditMode = false
+    private var transactionId: String? = null
+    private var currentTransaction: Transaction? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -44,6 +30,18 @@ class AddTransactionFragment : Fragment() {
         val etAmount = view.findViewById<EditText>(R.id.etAmount)
         val btnSave = view.findViewById<View>(R.id.btnSend)
 
+        val tvTitle = view.findViewById<TextView>(R.id.tvTitleTransaction)
+        val btnText = view.findViewById<TextView>(R.id.tvBtnTextTransaction)
+
+        // 🔥 STEP 1: Get transactionId
+        transactionId = arguments?.getString("transactionId")
+
+        if (!transactionId.isNullOrEmpty()) {
+            isEditMode = true
+            loadTransactionData(tvCustomer, etItem, etAmount, tvDate, tvTitle, btnText)
+        }
+
+        // 🔥 SAVE / UPDATE
         btnSave.setOnClickListener {
 
             val customerName = tvCustomer.text.toString()
@@ -51,7 +49,7 @@ class AddTransactionFragment : Fragment() {
             val amountText = etAmount.text.toString()
             val date = tvDate.text.toString()
 
-            if (selectedCustomerName.isNullOrEmpty()) {
+            if (customerName.isBlank()) {
                 tvCustomer.error = "Select customer"
                 return@setOnClickListener
             }
@@ -69,29 +67,32 @@ class AddTransactionFragment : Fragment() {
             val amount = amountText.toInt()
 
             val transaction = Transaction(
-                customerName = selectedCustomerName!!,
+                id = currentTransaction?.id ?: System.currentTimeMillis().toInt(),
+                customerName = customerName,
                 item = item,
                 amount = amount,
                 date = date,
-                status = Status.PENDING
+                status = currentTransaction?.status ?: Status.PENDING
             )
 
-            // 🔥 FIX — call suspend inside coroutine
             viewLifecycleOwner.lifecycleScope.launch {
-                TransactionRepository.addTransaction(transaction)
 
-                // go back after saving
+                if (isEditMode) {
+                    TransactionRepository.updateTransaction(transaction)
+                } else {
+                    TransactionRepository.addTransaction(transaction)
+                }
+
                 findNavController().popBackStack()
             }
         }
 
-
-        // Set today's date when screen opens
+        // 🔹 Default Date
         val calendar = java.util.Calendar.getInstance()
         val formatter = java.text.SimpleDateFormat("dd MMM yyyy", java.util.Locale.getDefault())
         tvDate.text = formatter.format(calendar.time)
 
-
+        // 🔹 Date Picker
         tvDate.setOnClickListener {
 
             val cal = java.util.Calendar.getInstance()
@@ -113,8 +114,7 @@ class AddTransactionFragment : Fragment() {
             datePicker.show()
         }
 
-
-
+        // 🔹 Customer Selection
         parentFragmentManager.setFragmentResultListener(
             "customer_request",
             viewLifecycleOwner
@@ -123,15 +123,52 @@ class AddTransactionFragment : Fragment() {
             selectedCustomerName = bundle.getString("customer_name")
             tvCustomer.text = selectedCustomerName
             tvCustomer.error = null
-
         }
 
         view.findViewById<View>(R.id.BtnSelectCustomer).setOnClickListener {
             findNavController().navigate(R.id.action_addTransactionFragment_to_selectCustomerFragment)
-
-
         }
-
     }
 
+    // 🔥 AUTO-FILL FUNCTION
+    private fun loadTransactionData(
+        tvCustomer: TextView,
+        etItem: EditText,
+        etAmount: EditText,
+        tvDate: TextView,
+        tvTitle: TextView,
+        btnText: TextView
+    ) {
+
+        viewLifecycleOwner.lifecycleScope.launch {
+
+            TransactionRepository.getAllTransactions().collectLatest { list ->
+
+                val transaction = list.find {
+                    it.id.toString() == transactionId
+                }
+
+                transaction?.let {
+
+                    currentTransaction = it
+
+                    tvCustomer.text = it.customerName
+                    selectedCustomerName = it.customerName
+
+                    etItem.setText(it.item)
+                    etAmount.setText(it.amount.toString())
+                    tvDate.text = it.date
+
+                    // 🔥 CHANGE UI
+                    if (it.status == Status.REJECTED) {
+                        tvTitle.text = "Correct Transaction"
+                    } else {
+                        tvTitle.text = "Edit Transaction"
+                    }
+
+                    btnText.text = "Update"
+                }
+            }
+        }
+    }
 }

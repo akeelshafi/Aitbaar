@@ -27,17 +27,18 @@ object TransactionRepository {
 
     // 🔹 Insert transaction into Room
     suspend fun addTransaction(transaction: Transaction) {
-        val entity =
-            TransactionEntity(
-                customerName = transaction.customerName,
-                item = transaction.item,
-                amount = transaction.amount,
-                date = transaction.date,
-                status = transaction.status
-            )
+
+        val entity = TransactionEntity(
+            id = transaction.id,
+            customerName = transaction.customerName,
+            item = transaction.item,
+            amount = transaction.amount,
+            date = transaction.date,
+            status = transaction.status
+        )
+
         dao.insertTransaction(entity)
     }
-
     // 🔹 Update transaction status
     suspend fun updateTransactionStatus(id: Int, newStatus: Status) {
         dao.updateTransactionStatus(id, newStatus)
@@ -91,6 +92,20 @@ object TransactionRepository {
 
     fun getPaymentsForCustomer(name: String) =
         paymentDao.getPaymentsForCustomer(name)
+
+    suspend fun updateTransaction(transaction: Transaction) {
+
+        val entity = TransactionEntity(
+            id = transaction.id,
+            customerName = transaction.customerName,
+            item = transaction.item,
+            amount = transaction.amount,
+            date = transaction.date,
+            status = transaction.status
+        )
+
+        dao.updateTransaction(entity)
+    }
 
 
 }

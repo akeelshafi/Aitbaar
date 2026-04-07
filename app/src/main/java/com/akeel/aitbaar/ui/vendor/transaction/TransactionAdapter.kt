@@ -10,7 +10,7 @@ import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
 
 class TransactionAdapter(
-    private var list: List<Transaction>
+    private var list: List<Transaction>,private val onEditClick: (Transaction) -> Unit
 ) : RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
 
      class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -20,6 +20,7 @@ class TransactionAdapter(
         val date = view.findViewById<TextView>(R.id.tvDate)
         val status = view.findViewById<TextView>(R.id.tvStatus)
         val button = view.findViewById<TextView>(R.id.btnAction)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
@@ -35,6 +36,10 @@ class TransactionAdapter(
         holder.item.text = transaction.item
         holder.amount.text = "₹${transaction.amount}"
         holder.date.text = transaction.date
+
+        holder.button.setOnClickListener {
+            onEditClick(transaction)
+        }
 
         when (transaction.status) {
 

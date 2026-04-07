@@ -25,7 +25,7 @@
             app:tint="#233C73" />
 
         <TextView
-            android:id="@+id/tvTitle"
+            android:id="@+id/tvTitleTransaction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Add Transaction"
@@ -227,6 +227,7 @@
                 app:cardElevation="6dp">
 
                 <TextView
+                    android:id="@+id/tvBtnTextTransaction"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@drawable/bg_button_gradient"

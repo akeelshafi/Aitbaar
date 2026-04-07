@@ -110,24 +110,27 @@
                         </FrameLayout>
 
                         <TextView
+                            android:id="@+id/tvVendorName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
                             android:layout_marginBottom="4dp"
-                            android:text="Akeel Shafi"
+                            android:text=""
                             android:textColor="#FFFFFF"
                             android:textSize="26sp"
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/tvShopName"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginBottom="14dp"
-                            android:text="Aitbaar App"
+                            android:text="Loading..."
                             android:textColor="#E6F0FF"
                             android:textSize="16sp" />
 
-                        <TextView
+                        <Button
+                            android:id="@+id/btnEditProfile"
                             android:layout_width="wrap_content"
                             android:layout_height="40dp"
                             android:background="@drawable/bg_edit_profile_button"
@@ -148,6 +151,7 @@
                     android:orientation="vertical">
 
                     <!-- Dark Mode -->
+<!--
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
                         android:layout_height="65dp"
@@ -185,54 +189,22 @@
                                 android:textSize="16sp" />
 
                             <Switch
+                                android:id="@+id/switchDarkMode"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content" />
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
+-->
 
-                    <!-- Export Ledger -->
-                    <androidx.cardview.widget.CardView
-                        android:layout_width="match_parent"
-                        android:layout_height="65dp"
-                        android:layout_marginBottom="14dp"
-                        app:cardBackgroundColor="@android:color/white"
-                        app:cardCornerRadius="18dp"
-                        app:cardElevation="2dp">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:gravity="center_vertical"
-                            android:paddingHorizontal="18dp">
-
-                            <ImageView
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:src="@drawable/export"
-                                app:tint="#5B6B7A" />
-
-                            <View
-                                android:layout_width="1dp"
-                                android:layout_height="22dp"
-                                android:layout_marginHorizontal="16dp"
-                                android:background="#E0E6ED" />
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Export Ledger"
-                                android:textStyle="bold"
-                                android:textColor="#233C73"
-                                android:textSize="16sp" />
-                        </LinearLayout>
-                    </androidx.cardview.widget.CardView>
                     <!-- Help & Support -->
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/helpSupportCard"
                         android:layout_width="match_parent"
                         android:layout_height="65dp"
                         android:layout_marginBottom="14dp"
                         app:cardBackgroundColor="@android:color/white"
                         app:cardCornerRadius="18dp"
+                        android:layout_marginTop="8dp"
                         app:cardElevation="2dp">
 
                         <LinearLayout
@@ -311,6 +283,7 @@
 
                     <!-- Logout -->
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/logoutCard"
                         android:layout_width="match_parent"
                         android:layout_height="65dp"
                         android:layout_marginBottom="20dp"

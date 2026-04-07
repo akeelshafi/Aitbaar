@@ -48,6 +48,8 @@ dependencies {
 
     // Room Database (Simple MVP)
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     implementation(platform("com.google.firebase:firebase-bom:34.8.0"))

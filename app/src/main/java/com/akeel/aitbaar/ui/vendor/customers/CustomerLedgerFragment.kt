@@ -6,6 +6,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
@@ -82,7 +83,17 @@ class CustomerLedgerFragment : Fragment(R.layout.fragment_customer_ledger) {
         recycler = view.findViewById(R.id.rvLedger)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = TransactionAdapter(emptyList())
+        adapter = TransactionAdapter(emptyList()) { transaction ->
+
+            val bundle = Bundle().apply {
+                putString("transactionId", transaction.id.toString())
+            }
+
+            findNavController().navigate(
+                R.id.addTransactionFragment,
+                bundle
+            )
+        }
         recycler.adapter = adapter
 
         observeTransactions()

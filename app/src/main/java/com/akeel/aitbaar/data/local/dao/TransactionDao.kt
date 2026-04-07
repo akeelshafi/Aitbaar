@@ -4,9 +4,11 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.akeel.aitbaar.data.local.entity.TransactionEntity
 import com.akeel.aitbaar.data.model.CustomerBalance
 import com.akeel.aitbaar.data.model.Status
+import com.akeel.aitbaar.data.model.Transaction
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -21,6 +23,9 @@ interface TransactionDao {
 
     @Query("UPDATE transactions SET status = :newStatus WHERE id = :transactionId")
     suspend fun updateTransactionStatus(transactionId: Int, newStatus: Status)
+
+    @Update
+    suspend fun updateTransaction(transaction: TransactionEntity)
 
     @Query("""
 SELECT t.customerName AS name,
@@ -41,6 +46,8 @@ ORDER BY t.customerName ASC
 
     @Query("SELECT * FROM transactions WHERE customerName = :customerName ORDER BY id DESC")
     fun getTransactionsForCustomer(customerName: String): Flow<List<TransactionEntity>>
+
+
 
 
 }

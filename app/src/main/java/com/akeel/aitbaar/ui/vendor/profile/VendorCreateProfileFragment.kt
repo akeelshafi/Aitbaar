@@ -9,16 +9,14 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.akeel.aitbaar.R
+import com.akeel.aitbaar.utils.DashboardCache
+import com.akeel.aitbaar.utils.ProfileCache
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -32,36 +30,32 @@ class VendorCreateProfileFragment : Fragment() {
 
     private lateinit var imgVendorProfile: ImageView
     private var savedImagePath: String? = null
+    private var isEditMode = false
 
-    // ✅ Gallery picker
+    // ✅ Gallery
     private val pickImageFromGallery =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-            if (uri != null) {
+            uri?.let {
                 val bitmap =
-                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, uri)
+                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, it)
                 imgVendorProfile.setImageBitmap(bitmap)
                 savedImagePath = saveBitmapToInternalStorage(bitmap)
             }
         }
 
-    // ✅ Camera capture
+    // ✅ Camera
     private val takePhotoFromCamera =
-        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap: Bitmap? ->
-            if (bitmap != null) {
-                imgVendorProfile.setImageBitmap(bitmap)
-                savedImagePath = saveBitmapToInternalStorage(bitmap)
+        registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            bitmap?.let {
+                imgVendorProfile.setImageBitmap(it)
+                savedImagePath = saveBitmapToInternalStorage(it)
             }
         }
 
-    // ✅ Camera permission
     private val requestCameraPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-            if (granted) {
-                takePhotoFromCamera.launch(null)
-            } else {
-                Toast.makeText(requireContext(), "Camera permission denied ❌", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            if (granted) takePhotoFromCamera.launch(null)
+            else Toast.makeText(requireContext(), "Camera permission denied ❌", Toast.LENGTH_SHORT).show()
         }
 
     override fun onCreateView(
@@ -74,11 +68,9 @@ class VendorCreateProfileFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // ✅ Image + Camera
+        // 🔹 Views
         imgVendorProfile = view.findViewById(R.id.imgProfile)
-        val btnVendorCamera = view.findViewById<CardView>(R.id.btnVendorCamera)
 
-        // ✅ Inputs
         val etOwnerName = view.findViewById<EditText>(R.id.etOwnerName)
         val etVendorPhone = view.findViewById<EditText>(R.id.etVendorPhone)
         val etBusinessEmail = view.findViewById<EditText>(R.id.etBusinessEmail)
@@ -90,112 +82,106 @@ class VendorCreateProfileFragment : Fragment() {
         val actBusinessType = view.findViewById<AutoCompleteTextView>(R.id.actBusinessType)
 
         val btnCreateVendorProfile = view.findViewById<CardView>(R.id.btnCreateVendorProfile)
+        val btnText = view.findViewById<TextView>(R.id.tvBtnText)
+        val title = view.findViewById<TextView>(R.id.tvVendorCreateProfileTitle)
 
-        // ✅ Dropdown lists
-        val categories = listOf(
-            "Kirana", "Medical", "Apparel", "Electronics", "Mobile",
-            "Financial Services", "Insurance", "Digital", "Agriculture",
-            "Education", "Computer", "Tour & Travel", "Other"
-        )
+        val btnVendorCamera = view.findViewById<CardView>(R.id.btnVendorCamera)
 
-        val types = listOf(
-            "Retailer / Shop", "Wholesaler", "Distributor", "Services",
-            "Manufacturer", "Other"
-        )
+        // 🔹 Dropdowns
+        val categories = listOf("Kirana","Medical","Apparel","Electronics","Mobile","Financial Services","Insurance","Digital","Agriculture","Education","Computer","Tour & Travel","Other")
+        val types = listOf("Retailer / Shop","Wholesaler","Distributor","Services","Manufacturer","Other")
 
-        // ✅ Set adapters
-        actBusinessCategory.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, categories)
-        )
-        actBusinessType.setAdapter(
-            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
-        )
+        actBusinessCategory.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, categories))
+        actBusinessType.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types))
 
-        // ✅ Show dropdown on click
         actBusinessCategory.setOnClickListener { actBusinessCategory.showDropDown() }
         actBusinessType.setOnClickListener { actBusinessType.showDropDown() }
 
-        // ✅ Current user
-        val user = auth.currentUser
-        if (user == null) {
-            Toast.makeText(requireContext(), "User not logged in ❌", Toast.LENGTH_SHORT).show()
-            return view
-        }
+        val user = auth.currentUser ?: return view
+        val uid = user.uid
 
         etVendorPhone.setText(user.phoneNumber ?: "")
 
-        // ✅ Camera click
+        // 🔥 EDIT MODE DETECTION
+        db.collection("vendors").document(uid).get()
+            .addOnSuccessListener { doc ->
+
+                if (doc.exists()) {
+
+                    isEditMode = true
+
+                    etOwnerName.setText(doc.getString("name"))
+                    etBusinessName.setText(doc.getString("shopName"))
+                    etBusinessAddress.setText(doc.getString("shopAddress"))
+                    etBusinessEmail.setText(doc.getString("email"))
+                    etGstNumber.setText(doc.getString("gstNumber"))
+
+                    actBusinessCategory.setText(doc.getString("businessCategory"), false)
+                    actBusinessType.setText(doc.getString("businessType"), false)
+
+                    val imagePath = doc.getString("profileImagePath")
+                    savedImagePath = imagePath
+
+                    if (!imagePath.isNullOrEmpty()) {
+                        val file = File(imagePath)
+                        if (file.exists()) {
+                            imgVendorProfile.setImageURI(Uri.fromFile(file))
+                        }
+                    }
+
+                    // 🔥 CHANGE UI
+                    title.text = "Update Profile"
+                    btnText.text = "Update Profile"
+                }
+            }
+
+        // 🔹 Image picker
         btnVendorCamera.setOnClickListener { showImagePickerDialog() }
 
-        // ✅ Save Vendor Profile
+        // 🔥 SAVE / UPDATE
         btnCreateVendorProfile.setOnClickListener {
 
-            val ownerName = etOwnerName.text.toString().trim()
-            val businessName = etBusinessName.text.toString().trim()
-            val businessAddress = etBusinessAddress.text.toString().trim()
-
-            val businessEmail = etBusinessEmail.text.toString().trim()
-            val gstNumber = etGstNumber.text.toString().trim()
-            val category = actBusinessCategory.text.toString().trim()
-            val type = actBusinessType.text.toString().trim()
-
-            if (ownerName.isEmpty()) {
-                Toast.makeText(requireContext(), "Enter Owner Name", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (businessName.isEmpty()) {
-                Toast.makeText(requireContext(), "Enter Business Name", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            if (businessAddress.isEmpty()) {
-                Toast.makeText(requireContext(), "Enter Business Address", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            val uid = user.uid
-            val phoneNumber = user.phoneNumber ?: ""
-
-            val vendorMap = hashMapOf(
+            val vendorMap = hashMapOf<String, Any>(
                 "uid" to uid,
-                "phoneNumber" to phoneNumber,
+                "phoneNumber" to (user.phoneNumber ?: ""),
                 "role" to "vendor",
 
-                "name" to ownerName,
-                "shopName" to businessName,
-                "shopAddress" to businessAddress,
+                "name" to etOwnerName.text.toString(),
+                "shopName" to etBusinessName.text.toString(),
+                "shopAddress" to etBusinessAddress.text.toString(),
 
-                "email" to businessEmail,
-                "gstNumber" to gstNumber,
-                "businessCategory" to category,
-                "businessType" to type,
+                "email" to etBusinessEmail.text.toString(),
+                "gstNumber" to etGstNumber.text.toString(),
+                "businessCategory" to actBusinessCategory.text.toString(),
+                "businessType" to actBusinessType.text.toString(),
 
                 "profileImagePath" to (savedImagePath ?: ""),
 
-                "createdAt" to FieldValue.serverTimestamp(),
                 "updatedAt" to FieldValue.serverTimestamp()
             )
+
+            if (!isEditMode) {
+                vendorMap["createdAt"] = FieldValue.serverTimestamp()
+            }
 
             db.collection("vendors")
                 .document(uid)
                 .set(vendorMap)
                 .addOnSuccessListener {
-                    Toast.makeText(requireContext(), "Vendor Profile Saved ✅", Toast.LENGTH_SHORT)
-                        .show()
 
-                    // ✅ Go Dashboard + remove auth/profile screens from backstack
-                    findNavController().navigate(
-                        R.id.vendorDashboardFragment,
-                        null,
-                        androidx.navigation.NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_graph, true)
-                            .build()
-                    )
-                }
-                .addOnFailureListener { e ->
-                    Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(
+                        requireContext(),
+                        if (isEditMode) "Profile Updated ✅" else "Profile Created ✅",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    // 🔥 CLEAR CACHE
+                    ProfileCache.name = null
+                    ProfileCache.shop = null
+                    ProfileCache.imagePath = null
+                    DashboardCache.vendorName =null
+
+                    findNavController().popBackStack()
                 }
         }
 
@@ -204,7 +190,6 @@ class VendorCreateProfileFragment : Fragment() {
 
     private fun showImagePickerDialog() {
         val options = arrayOf("Camera", "Gallery")
-
         AlertDialog.Builder(requireContext())
             .setTitle("Choose Image")
             .setItems(options) { _, which ->
@@ -218,17 +203,10 @@ class VendorCreateProfileFragment : Fragment() {
 
     private fun saveBitmapToInternalStorage(bitmap: Bitmap): String {
         val user = auth.currentUser ?: return ""
+        val file = File(requireContext().filesDir, "vendor_profile_${user.uid}.jpg")
 
-        val fileName = "vendor_profile_${user.uid}.jpg"
-        val file = File(requireContext().filesDir, fileName)
-
-        try {
-            FileOutputStream(file).use { out ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
-            }
-        } catch (e: Exception) {
-            Toast.makeText(requireContext(), "Image Save Failed: ${e.message}", Toast.LENGTH_SHORT)
-                .show()
+        FileOutputStream(file).use {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it)
         }
 
         return file.absolutePath
