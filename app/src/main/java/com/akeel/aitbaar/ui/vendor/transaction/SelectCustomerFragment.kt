@@ -123,7 +123,7 @@ class SelectCustomerFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(
                     requireContext(),
-                    "Showing contacts only. Aitbaar user matching is temporarily unavailable.",
+                    "Could not check Aitbaar users. Showing contacts only.",
                     Toast.LENGTH_SHORT
                 ).show()
                 adapter.submitList(contacts)
