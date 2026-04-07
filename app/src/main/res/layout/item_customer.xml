@@ -45,7 +45,30 @@
                 android:text="+91 600527963"
                 android:textColor="#6B7280"
                 android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/tvAitbaarStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_status_accepted"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:text="On Aitbaar"
+                android:textColor="#FFFFFF"
+                android:textSize="12sp" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btnInvite"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:backgroundTint="#2B579A"
+            android:text="Invite"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:visibility="gone" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
