@@ -50,6 +50,7 @@ class SelectCustomerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler = view.findViewById<RecyclerView>(R.id.rvCustomers)
+        val etSearchCustomer = view.findViewById<android.widget.EditText>(R.id.etSearchCustomer)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
         adapter = CustomerAdapter(
