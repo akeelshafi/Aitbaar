@@ -6,14 +6,12 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -21,17 +19,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
 import com.akeel.aitbaar.data.model.Customer
 import com.google.firebase.firestore.FirebaseFirestore
-import java.util.Locale
 
 class SelectCustomerFragment : Fragment() {
 
-    companion object {
-        private const val TAG = "SelectCustomerFragment"
-    }
-
     private lateinit var adapter: CustomerAdapter
     private val db by lazy { FirebaseFirestore.getInstance() }
-    private var allContacts: List<Customer> = emptyList()
 
     private val contactPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -77,9 +69,6 @@ class SelectCustomerFragment : Fragment() {
         recycler.adapter = adapter
 
         requestContactsAndLoad()
-        etSearchCustomer.doAfterTextChanged { text ->
-            filterContacts(text?.toString().orEmpty())
-        }
 
         // Back button click
         view.findViewById<View>(R.id.btnBack).setOnClickListener {
@@ -103,83 +92,43 @@ class SelectCustomerFragment : Fragment() {
         val contacts = loadPhoneContacts()
         if (contacts.isEmpty()) {
             Toast.makeText(requireContext(), "No contacts found", Toast.LENGTH_SHORT).show()
-            allContacts = emptyList()
             adapter.submitList(emptyList())
             return
         }
 
-        // Prefer directory collection (recommended production setup).
-        db.collection("customerDirectory")
+        db.collection("customers")
             .get()
             .addOnSuccessListener { query ->
-                val registeredByPhone = mapRegisteredUsersByPhone(query.documents)
-                allContacts = mapContacts(contacts, registeredByPhone)
-                filterContacts("")
-            }
-            .addOnFailureListener { directoryError ->
-                // Backward compatibility: if directory isn't configured yet, try legacy customers collection.
-                db.collection("customers")
-                    .get()
-                    .addOnSuccessListener { legacyQuery ->
-                        val registeredByPhone = mapRegisteredUsersByPhone(legacyQuery.documents)
-                        allContacts = mapContacts(contacts, registeredByPhone)
-                        filterContacts("")
+                val registeredByPhone = query.documents
+                    .mapNotNull { doc ->
+                        val phone = normalizePhone(doc.getString("phoneNumber").orEmpty())
+                        if (phone.isBlank()) return@mapNotNull null
+                        phone to doc.getString("name").orEmpty()
                     }
-                    .addOnFailureListener { customersError ->
-                        Log.e(TAG, "Directory lookup failed", directoryError)
-                        Log.e(TAG, "Legacy customers lookup failed", customersError)
-                        Toast.makeText(
-                            requireContext(),
-                            "Showing contacts only. Check Firestore rules and authentication.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        allContacts = contacts
-                        filterContacts("")
-                    }
-            }
-    }
+                    .toMap()
 
-    private fun filterContacts(query: String) {
-        val normalized = query.trim().lowercase(Locale.getDefault())
-        val filtered = if (normalized.isBlank()) {
-            allContacts
-        } else {
-            allContacts.filter { contact ->
-                val displayName = (contact.aitbaarName ?: contact.name).lowercase(Locale.getDefault())
-                val phone = contact.phone.lowercase(Locale.getDefault())
-                displayName.contains(normalized) || phone.contains(normalized)
-            }
-        }
-        adapter.submitList(filtered)
-    }
+                val mapped = contacts.map { contact ->
+                    val normalized = normalizePhone(contact.phone)
+                    val aitbaarName = registeredByPhone[normalized]
+                    contact.copy(
+                        isOnAitbaar = aitbaarName != null,
+                        aitbaarName = aitbaarName
+                    )
+                }.sortedWith(
+                    compareByDescending<Customer> { it.isOnAitbaar }
+                        .thenBy { (it.aitbaarName ?: it.name).lowercase() }
+                )
 
-    private fun mapRegisteredUsersByPhone(
-        documents: List<com.google.firebase.firestore.DocumentSnapshot>
-    ): Map<String, String> {
-        return documents
-            .mapNotNull { doc ->
-                val phone = normalizePhone(doc.getString("phoneNumber").orEmpty())
-                if (phone.isBlank()) return@mapNotNull null
-                phone to doc.getString("name").orEmpty()
+                adapter.submitList(mapped)
             }
-            .toMap()
-    }
-
-    private fun mapContacts(
-        contacts: List<Customer>,
-        registeredByPhone: Map<String, String>
-    ): List<Customer> {
-        return contacts.map { contact ->
-            val normalized = normalizePhone(contact.phone)
-            val aitbaarName = registeredByPhone[normalized]
-            contact.copy(
-                isOnAitbaar = aitbaarName != null,
-                aitbaarName = aitbaarName
-            )
-        }.sortedWith(
-            compareByDescending<Customer> { it.isOnAitbaar }
-                .thenBy { (it.aitbaarName ?: it.name).lowercase() }
-        )
+            .addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Could not check Aitbaar users. Showing contacts only.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                adapter.submitList(contacts)
+            }
     }
 
     private fun loadPhoneContacts(): List<Customer> {
