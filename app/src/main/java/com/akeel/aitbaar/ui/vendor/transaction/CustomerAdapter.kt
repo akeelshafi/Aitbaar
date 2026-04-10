@@ -24,6 +24,7 @@ class CustomerAdapter(
         val customer = list[position]
         holder.name.text = customer.aitbaarName ?: customer.name
         holder.phone.text = customer.phone
+        holder.initials.text = getInitials(displayName)
 
         if (customer.isOnAitbaar) {
             holder.status.text = "On Aitbaar"
