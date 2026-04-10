@@ -22,17 +22,21 @@ class CustomerAdapter(
 
     override fun onBindViewHolder(holder: CustomerViewHolder, position: Int) {
         val customer = list[position]
-        holder.name.text = customer.aitbaarName ?: customer.name
+        val displayName = customer.aitbaarName ?: customer.name
+
+        holder.name.text = displayName
         holder.phone.text = customer.phone
         holder.initials.text = getInitials(displayName)
 
         if (customer.isOnAitbaar) {
             holder.status.text = "On Aitbaar"
+            holder.status.setBackgroundResource(R.drawable.bg_status_accepted)
             holder.inviteButton.visibility = View.GONE
             holder.itemView.isClickable = true
             holder.itemView.setOnClickListener { onSelectCustomer(customer) }
         } else {
             holder.status.text = "Not on Aitbaar"
+            holder.status.setBackgroundResource(R.drawable.bg_status_due)
             holder.inviteButton.visibility = View.VISIBLE
             holder.itemView.setOnClickListener(null)
             holder.itemView.isClickable = false
@@ -42,16 +46,26 @@ class CustomerAdapter(
 
     override fun getItemCount(): Int = list.size
 
-
     class CustomerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.tvCustomerName)
         val phone: TextView = itemView.findViewById(R.id.tvCustomerPhone)
         val status: TextView = itemView.findViewById(R.id.tvAitbaarStatus)
         val inviteButton: Button = itemView.findViewById(R.id.btnInvite)
+        val initials: TextView = itemView.findViewById(R.id.tvInitials)
     }
 
     fun submitList(newList: List<Customer>) {
         list = newList
         notifyDataSetChanged()
+    }
+
+    private fun getInitials(name: String): String {
+        return name.trim()
+            .split(Regex("\\s+"))
+            .filter { it.isNotBlank() }
+            .take(3) // first / middle / last support
+            .mapNotNull { it.firstOrNull()?.uppercaseChar() }
+            .joinToString("")
+            .ifBlank { "?" }
     }
 }
