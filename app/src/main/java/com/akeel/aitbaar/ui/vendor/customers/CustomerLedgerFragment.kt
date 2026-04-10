@@ -59,27 +59,6 @@ class CustomerLedgerFragment : Fragment(R.layout.fragment_customer_ledger) {
         customerName = arguments?.getString("customerName") ?: ""
         tvCustomerName.text = customerName
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            TransactionRepository.addTransaction(
-                Transaction(
-                    customerName = customerName,
-                    item = "Dummy Test Transaction",
-                    amount = 100,
-                    date = "21 Feb 2026",
-                    status = Status.ACCEPTED
-                )
-            )
-            TransactionRepository.addTransaction(
-                Transaction(
-                    customerName = customerName,
-                    item = "Dummy Test Transaction",
-                    amount = 100,
-                    date = "21 Feb 2026",
-                    status = Status.REJECTED
-                )
-            )
-        }
-
         recycler = view.findViewById(R.id.rvLedger)
         recycler.layoutManager = LinearLayoutManager(requireContext())
 
