@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,10 +21,6 @@ import com.akeel.aitbaar.data.model.Customer
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SelectCustomerFragment : Fragment() {
-
-    companion object {
-        private const val TAG = "SelectCustomerFragment"
-    }
 
     private lateinit var adapter: CustomerAdapter
     private val db by lazy { FirebaseFirestore.getInstance() }
@@ -100,61 +95,39 @@ class SelectCustomerFragment : Fragment() {
             return
         }
 
-        // Prefer directory collection (recommended production setup).
-        db.collection("customerDirectory")
+        db.collection("customers")
             .get()
             .addOnSuccessListener { query ->
-                val registeredByPhone = mapRegisteredUsersByPhone(query.documents)
-                adapter.submitList(mapContacts(contacts, registeredByPhone))
-            }
-            .addOnFailureListener { directoryError ->
-                // Backward compatibility: if directory isn't configured yet, try legacy customers collection.
-                db.collection("customers")
-                    .get()
-                    .addOnSuccessListener { legacyQuery ->
-                        val registeredByPhone = mapRegisteredUsersByPhone(legacyQuery.documents)
-                        adapter.submitList(mapContacts(contacts, registeredByPhone))
+                val registeredByPhone = query.documents
+                    .mapNotNull { doc ->
+                        val phone = normalizePhone(doc.getString("phoneNumber").orEmpty())
+                        if (phone.isBlank()) return@mapNotNull null
+                        phone to doc.getString("name").orEmpty()
                     }
-                    .addOnFailureListener { customersError ->
-                        Log.e(TAG, "Directory lookup failed", directoryError)
-                        Log.e(TAG, "Legacy customers lookup failed", customersError)
-                        Toast.makeText(
-                            requireContext(),
-                            "Showing contacts only. Check Firestore rules and authentication.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        adapter.submitList(contacts)
-                    }
-            }
-    }
+                    .toMap()
 
-    private fun mapRegisteredUsersByPhone(
-        documents: List<com.google.firebase.firestore.DocumentSnapshot>
-    ): Map<String, String> {
-        return documents
-            .mapNotNull { doc ->
-                val phone = normalizePhone(doc.getString("phoneNumber").orEmpty())
-                if (phone.isBlank()) return@mapNotNull null
-                phone to doc.getString("name").orEmpty()
-            }
-            .toMap()
-    }
+                val mapped = contacts.map { contact ->
+                    val normalized = normalizePhone(contact.phone)
+                    val aitbaarName = registeredByPhone[normalized]
+                    contact.copy(
+                        isOnAitbaar = aitbaarName != null,
+                        aitbaarName = aitbaarName
+                    )
+                }.sortedWith(
+                    compareByDescending<Customer> { it.isOnAitbaar }
+                        .thenBy { (it.aitbaarName ?: it.name).lowercase() }
+                )
 
-    private fun mapContacts(
-        contacts: List<Customer>,
-        registeredByPhone: Map<String, String>
-    ): List<Customer> {
-        return contacts.map { contact ->
-            val normalized = normalizePhone(contact.phone)
-            val aitbaarName = registeredByPhone[normalized]
-            contact.copy(
-                isOnAitbaar = aitbaarName != null,
-                aitbaarName = aitbaarName
-            )
-        }.sortedWith(
-            compareByDescending<Customer> { it.isOnAitbaar }
-                .thenBy { (it.aitbaarName ?: it.name).lowercase() }
-        )
+                adapter.submitList(mapped)
+            }
+            .addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Could not check Aitbaar users. Showing contacts only.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                adapter.submitList(contacts)
+            }
     }
 
     private fun loadPhoneContacts(): List<Customer> {
