@@ -44,12 +44,12 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         // 🔥 SAVE / UPDATE
         btnSave.setOnClickListener {
 
-            val customerName = tvCustomer.text.toString()
+            val customerName = selectedCustomerName ?: tvCustomer.text.toString().trim()
             val item = etItem.text.toString()
             val amountText = etAmount.text.toString()
             val date = tvDate.text.toString()
 
-            if (customerName.isBlank()) {
+            if (customerName.isBlank() || customerName.equals("Select Customer", ignoreCase = true)) {
                 tvCustomer.error = "Select customer"
                 return@setOnClickListener
             }
