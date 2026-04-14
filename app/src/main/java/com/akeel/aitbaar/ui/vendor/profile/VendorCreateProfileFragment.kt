@@ -13,6 +13,7 @@ import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.akeel.aitbaar.R
 import com.akeel.aitbaar.utils.DashboardCache
@@ -140,20 +141,67 @@ class VendorCreateProfileFragment : Fragment() {
 
         // 🔥 SAVE / UPDATE
         btnCreateVendorProfile.setOnClickListener {
+            val ownerName = etOwnerName.text.toString().trim()
+            val businessEmail = etBusinessEmail.text.toString().trim()
+            val businessName = etBusinessName.text.toString().trim()
+            val businessAddress = etBusinessAddress.text.toString().trim()
+            val gstNumber = etGstNumber.text.toString().trim()
+            val businessCategory = actBusinessCategory.text.toString().trim()
+            val businessType = actBusinessType.text.toString().trim()
+
+            var hasError = false
+
+            if (ownerName.isEmpty()) {
+                etOwnerName.error = "Owner name is required"
+                hasError = true
+            }
+            if (businessName.isEmpty()) {
+                etBusinessName.error = "Business name is required"
+                hasError = true
+            }
+            if (businessAddress.isEmpty()) {
+                etBusinessAddress.error = "Business address is required"
+                hasError = true
+            }
+            if (businessCategory.isEmpty()) {
+                actBusinessCategory.error = "Business category is required"
+                hasError = true
+            } else {
+                actBusinessCategory.error = null
+            }
+            if (businessType.isEmpty()) {
+                actBusinessType.error = "Business type is required"
+                hasError = true
+            } else {
+                actBusinessType.error = null
+            }
+            if (businessEmail.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(businessEmail).matches()) {
+                etBusinessEmail.error = "Enter a valid email"
+                hasError = true
+            }
+
+            if (hasError) {
+                Toast.makeText(
+                    requireContext(),
+                    "Please fill all required fields",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
 
             val vendorMap = hashMapOf<String, Any>(
                 "uid" to uid,
                 "phoneNumber" to (user.phoneNumber ?: ""),
                 "role" to "vendor",
 
-                "name" to etOwnerName.text.toString(),
-                "shopName" to etBusinessName.text.toString(),
-                "shopAddress" to etBusinessAddress.text.toString(),
+                "name" to ownerName,
+                "shopName" to businessName,
+                "shopAddress" to businessAddress,
 
-                "email" to etBusinessEmail.text.toString(),
-                "gstNumber" to etGstNumber.text.toString(),
-                "businessCategory" to actBusinessCategory.text.toString(),
-                "businessType" to actBusinessType.text.toString(),
+                "email" to businessEmail,
+                "gstNumber" to gstNumber,
+                "businessCategory" to businessCategory,
+                "businessType" to businessType,
 
                 "profileImagePath" to (savedImagePath ?: ""),
 
@@ -181,7 +229,13 @@ class VendorCreateProfileFragment : Fragment() {
                     ProfileCache.imagePath = null
                     DashboardCache.vendorName =null
 
-                    findNavController().popBackStack()
+                    findNavController().navigate(
+                        R.id.vendorDashboardFragment,
+                        null,
+                        NavOptions.Builder()
+                            .setPopUpTo(R.id.nav_graph, true)
+                            .build()
+                    )
                 }
         }
 
