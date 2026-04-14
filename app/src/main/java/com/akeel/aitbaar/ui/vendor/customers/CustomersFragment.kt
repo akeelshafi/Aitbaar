@@ -5,20 +5,25 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.ImageView
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
+import com.akeel.aitbaar.data.model.CustomerBalance
 import com.akeel.aitbaar.data.repository.TransactionRepository
 import com.akeel.aitbaar.ui.vendor.VendorNavHelper
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class CustomersFragment : Fragment() {
 
     private lateinit var adapter: CustomerBalanceAdapter
+    private var allCustomers: List<CustomerBalance> = emptyList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +43,7 @@ class CustomersFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler = view.findViewById<RecyclerView>(R.id.rvCustomers)
+        val etSearchCustomer = view.findViewById<EditText>(R.id.etSearchCustomer)
 
         adapter = CustomerBalanceAdapter(emptyList()) { customer ->
 
@@ -53,8 +59,13 @@ class CustomersFragment : Fragment() {
         // 🔥 Collect real data from Room
         viewLifecycleOwner.lifecycleScope.launch {
             TransactionRepository.getCustomerBalances().collectLatest { list ->
-                adapter.submitList(list)
+                allCustomers = list
+                filterCustomers(etSearchCustomer.text.toString())
             }
+        }
+
+        etSearchCustomer.doAfterTextChanged { text ->
+            filterCustomers(text?.toString().orEmpty())
         }
 
         VendorNavHelper.setup(this, view)
@@ -66,6 +77,18 @@ class CustomersFragment : Fragment() {
 
 
 
+    }
+
+    private fun filterCustomers(query: String) {
+        val normalizedQuery = query.trim().lowercase(Locale.getDefault())
+        val filteredList = if (normalizedQuery.isEmpty()) {
+            allCustomers
+        } else {
+            allCustomers.filter { customer ->
+                customer.name.lowercase(Locale.getDefault()).contains(normalizedQuery)
+            }
+        }
+        adapter.submitList(filteredList)
     }
 
 }
