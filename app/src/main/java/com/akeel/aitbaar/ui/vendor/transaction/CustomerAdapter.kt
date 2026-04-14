@@ -63,7 +63,7 @@ class CustomerAdapter(
         return name.trim()
             .split(Regex("\\s+"))
             .filter { it.isNotBlank() }
-            .take(3) // first / middle / last support
+            .take(2) // first / middle / last support
             .mapNotNull { it.firstOrNull()?.uppercaseChar() }
             .joinToString("")
             .ifBlank { "?" }
