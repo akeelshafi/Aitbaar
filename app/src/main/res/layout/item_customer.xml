@@ -17,8 +17,8 @@
         android:gravity="center_vertical">
 
         <FrameLayout
-            android:layout_width="56dp"
-            android:layout_height="56dp"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
             android:background="@drawable/bg_avatar_circle"
             android:gravity="center">
 
@@ -26,11 +26,10 @@
                 android:id="@+id/tvInitials"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:text="AS"
                 android:textAllCaps="true"
                 android:textColor="#FFFFFF"
-                android:textSize="18sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
         </FrameLayout>
 
@@ -63,10 +62,10 @@
                 android:id="@+id/tvAitbaarStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="7dp"
+                android:layout_marginTop="4dp"
                 android:background="@drawable/bg_status_accepted"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="4dp"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
                 android:text="On Aitbaar"
                 android:textColor="#FFFFFF"
                 android:textSize="12sp" />
@@ -75,12 +74,12 @@
         <Button
             android:id="@+id/btnInvite"
             android:layout_width="wrap_content"
-            android:layout_height="38dp"
+            android:layout_height="36dp"
             android:backgroundTint="#2B579A"
             android:text="Invite"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:visibility="gone" />
 
     </LinearLayout>
