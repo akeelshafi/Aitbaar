@@ -23,6 +23,7 @@ class CustomerAdapter(
     override fun onBindViewHolder(holder: CustomerViewHolder, position: Int) {
         val customer = list[position]
         val displayName = customer.aitbaarName ?: customer.name
+
         holder.name.text = displayName
         holder.phone.text = customer.phone
         holder.initials.text = getInitials(displayName)
@@ -45,7 +46,6 @@ class CustomerAdapter(
 
     override fun getItemCount(): Int = list.size
 
-
     class CustomerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val name: TextView = itemView.findViewById(R.id.tvCustomerName)
         val phone: TextView = itemView.findViewById(R.id.tvCustomerPhone)
@@ -60,15 +60,12 @@ class CustomerAdapter(
     }
 
     private fun getInitials(name: String): String {
-        val initials = name.trim()
+        return name.trim()
             .split(Regex("\\s+"))
             .filter { it.isNotBlank() }
-            .take(3)
-            .mapNotNull { part ->
-                part.firstOrNull { it.isLetterOrDigit() }?.uppercaseChar()
-            }
+            .take(2) // first / middle / last support
+            .mapNotNull { it.firstOrNull()?.uppercaseChar() }
             .joinToString("")
-
-        return initials.ifBlank { "?" }
+            .ifBlank { "?" }
     }
 }
