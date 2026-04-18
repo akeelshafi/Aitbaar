@@ -315,8 +315,9 @@
         <!-- ✅ Bottom Navigation -->
         <androidx.cardview.widget.CardView
             android:id="@+id/bottomNav"
+            android:layout_margin="12dp"
             android:layout_width="0dp"
-            android:layout_height="76dp"
+            android:layout_height="64dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="24dp"
             app:cardElevation="8dp"
@@ -386,16 +387,16 @@
                         android:foregroundGravity="center">
 
                         <androidx.cardview.widget.CardView
-                            android:layout_width="56dp"
-                            android:layout_height="56dp"
+                            android:layout_width="46dp"
+                            android:layout_height="46dp"
                             android:layout_gravity="center"
                             app:cardBackgroundColor="#3D7BFF"
                             app:cardCornerRadius="28dp"
                             app:cardElevation="6dp">
 
                             <ImageView
-                                android:layout_width="26dp"
-                                android:layout_height="26dp"
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
                                 android:layout_gravity="center"
                                 android:src="@drawable/rupee_indian"
                                 app:tint="#FFFFFF" />
