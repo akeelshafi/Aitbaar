@@ -12,7 +12,6 @@ import com.akeel.aitbaar.R
 import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
 import com.akeel.aitbaar.data.repository.TransactionRepository
-import com.akeel.aitbaar.utils.ProfileCache
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -105,11 +104,6 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                 try {
                     if (isEditMode) {
                         TransactionRepository.updateTransaction(transaction)
-                        updateTransactionInFirestore(
-                            transaction = transaction,
-                            customerUid = customerUid,
-                            customerPhone = customerPhone
-                        )
                     } else {
                         TransactionRepository.addTransaction(transaction)
                         savePendingTransactionToFirestore(
@@ -172,40 +166,6 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         }
     }
 
-    private suspend fun updateTransactionInFirestore(
-        transaction: Transaction,
-        customerUid: String?,
-        customerPhone: String?
-    ) {
-        val vendorUid = auth.currentUser?.uid
-            ?: throw IllegalStateException("Vendor not logged in")
-        val vendorName = getVendorDisplayName(vendorUid)
-
-        val updates = hashMapOf<String, Any>(
-            "vendorId" to vendorUid,
-            "vendorName" to vendorName,
-            "customerName" to transaction.customerName,
-            "item" to transaction.item,
-            "amount" to transaction.amount,
-            "updatedAt" to FieldValue.serverTimestamp()
-        )
-
-        if (!customerUid.isNullOrBlank()) updates["customerId"] = customerUid
-        if (!customerPhone.isNullOrBlank()) updates["customerPhone"] = customerPhone
-
-        suspendCancellableCoroutine<Unit> { continuation ->
-            db.collection("transactions")
-                .document(transaction.id.toString())
-                .update(updates)
-                .addOnSuccessListener {
-                    if (continuation.isActive) continuation.resume(Unit)
-                }
-                .addOnFailureListener { exception ->
-                    if (continuation.isActive) continuation.resumeWithException(exception)
-                }
-        }
-    }
-
     private suspend fun savePendingTransactionToFirestore(
         transaction: Transaction,
         customerUid: String,
@@ -213,12 +173,11 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
     ) {
         val vendorUid = auth.currentUser?.uid
             ?: throw IllegalStateException("Vendor not logged in")
-        val vendorName = getVendorDisplayName(vendorUid)
 
         val payload = hashMapOf<String, Any?>(
             "transactionId" to transaction.id.toString(),
             "vendorId" to vendorUid,
-            "vendorName" to vendorName,
+            "vendorName" to "",
             "customerId" to customerUid,
             "customerName" to transaction.customerName,
             "customerPhone" to customerPhone,
@@ -243,23 +202,6 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                 }
                 .addOnFailureListener { exception ->
                     if (continuation.isActive) continuation.resumeWithException(exception)
-                }
-        }
-    }
-
-    private suspend fun getVendorDisplayName(vendorUid: String): String {
-        ProfileCache.shop?.takeIf { it.isNotBlank() }?.let { return it }
-
-        return suspendCancellableCoroutine { continuation ->
-            db.collection("vendors")
-                .document(vendorUid)
-                .get()
-                .addOnSuccessListener { doc ->
-                    val shopName = doc.getString("shopName").orEmpty().ifBlank { "Vendor" }
-                    if (continuation.isActive) continuation.resume(shopName)
-                }
-                .addOnFailureListener {
-                    if (continuation.isActive) continuation.resume("Vendor")
                 }
         }
     }
