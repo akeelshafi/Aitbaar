@@ -106,12 +106,6 @@ class VendorDashboardFragment : Fragment(R.layout.fragment_vendor_dashboard) {
     private fun observeVendorTransactionsRealtime() {
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
-        data class DashboardTxn(
-            val customerId: String,
-            val createdAtMillis: Long,
-            val transaction: Transaction
-        )
-
         // ✅ Use cache first
         if (DashboardCache.totalAmount != null && DashboardCache.customerCount != null) {
             tvTotalAmount.text = "₹${DashboardCache.totalAmount}"
@@ -126,7 +120,6 @@ class VendorDashboardFragment : Fragment(R.layout.fragment_vendor_dashboard) {
                 val docs = snapshot?.documents ?: emptyList()
                 val parsed = docs.mapNotNull { doc ->
                     val transactionId = doc.getString("transactionId") ?: doc.id
-                    val customerId = doc.getString("customerId").orEmpty()
                     val customerName = doc.getString("customerName") ?: return@mapNotNull null
                     val item = doc.getString("item") ?: ""
                     val amount = (doc.getLong("amount") ?: 0L).toInt()
@@ -139,27 +132,23 @@ class VendorDashboardFragment : Fragment(R.layout.fragment_vendor_dashboard) {
                         SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(it)
                     } ?: ""
 
-                    DashboardTxn(
-                        customerId = customerId,
-                        createdAtMillis = createdAt?.toDate()?.time ?: 0L,
-                        transaction = Transaction(
-                            id = transactionId.toIntOrNull() ?: transactionId.hashCode(),
-                            customerName = customerName,
-                            item = item,
-                            amount = amount,
-                            date = date,
-                            status = status
-                        )
+                    Transaction(
+                        id = transactionId.toIntOrNull() ?: transactionId.hashCode(),
+                        customerName = customerName,
+                        item = item,
+                        amount = amount,
+                        date = date,
+                        status = status
                     )
-                }.sortedByDescending { it.createdAtMillis }
+                }.sortedByDescending { it.id }
 
-                val accepted = parsed.filter { it.transaction.status == Status.ACCEPTED }
-                val total = accepted.sumOf { it.transaction.amount }
-                val count = accepted.map { it.customerId }.filter { it.isNotBlank() }.distinct().count()
+                val accepted = parsed.filter { it.status == Status.ACCEPTED }
+                val total = accepted.sumOf { it.amount }
+                val count = accepted.map { it.customerName }.distinct().count()
 
                 tvTotalAmount.text = "₹$total"
                 tvCustomerCount.text = "From $count customers"
-                adapter.submitList(parsed.take(4).map { it.transaction })
+                adapter.submitList(parsed.take(4))
 
                 DashboardCache.totalAmount = total
                 DashboardCache.customerCount = count

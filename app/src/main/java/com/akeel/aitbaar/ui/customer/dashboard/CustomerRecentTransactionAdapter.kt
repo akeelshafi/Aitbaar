@@ -19,8 +19,7 @@ class CustomerRecentTransactionAdapter : RecyclerView.Adapter<CustomerRecentTran
         val tvAmount: TextView = view.findViewById(R.id.tvAmount)
         val tvDate: TextView = view.findViewById(R.id.tvDate)
         val tvStatus: TextView = view.findViewById(R.id.tvStatus)
-        val btnPrimaryAction: TextView = view.findViewById(R.id.btnPrimaryAction)
-        val btnSecondaryAction: TextView = view.findViewById(R.id.btnSecondaryAction)
+        val btnAction: TextView = view.findViewById(R.id.btnAction)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -36,8 +35,7 @@ class CustomerRecentTransactionAdapter : RecyclerView.Adapter<CustomerRecentTran
         holder.tvItem.text = tx.item
         holder.tvAmount.text = "₹${tx.amount}"
         holder.tvDate.text = tx.date
-        holder.btnPrimaryAction.visibility = View.GONE
-        holder.btnSecondaryAction.visibility = View.GONE
+        holder.btnAction.visibility = View.GONE
 
         when (tx.status) {
             Status.ACCEPTED -> {
