@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVendor() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/vendors/$(request.auth.uid));
+    }
+
+    function isCustomer() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/customers/$(request.auth.uid));
+    }
+
+    function statusChangedOnly() {
+      return request.resource.data.diff(resource.data).changedKeys()
+        .hasOnly([
+          'status',
+          'updatedAt',
+          'approvedAt',
+          'rejectedAt',
+          'rejectionReason'
+        ]);
+    }
+
+    function validStatusTransition() {
+      return resource.data.status == 'PENDING' &&
+        request.resource.data.status in ['ACCEPTED', 'REJECTED'];
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn() && (
+        resource.data.vendorId == request.auth.uid ||
+        resource.data.customerId == request.auth.uid
+      );
+
+      allow create: if isVendor() &&
+        request.resource.data.vendorId == request.auth.uid &&
+        request.resource.data.customerId is string &&
+        request.resource.data.customerId.size() > 0 &&
+        request.resource.data.status == 'PENDING' &&
+        request.resource.data.createdAt == request.time &&
+        request.resource.data.updatedAt == request.time;
+
+      allow update: if isCustomer() &&
+        resource.data.customerId == request.auth.uid &&
+        statusChangedOnly() &&
+        validStatusTransition();
+
+      allow delete: if false;
+    }
+
+    match /customers/{customerId} {
+      allow read: if isSignedIn() && (
+        request.auth.uid == customerId ||
+        isVendor()
+      );
+      allow write: if isSignedIn() && request.auth.uid == customerId;
+    }
+
+    match /vendors/{vendorId} {
+      allow read: if isSignedIn() && request.auth.uid == vendorId;
+      allow write: if isSignedIn() && request.auth.uid == vendorId;
+    }
+  }
+}
