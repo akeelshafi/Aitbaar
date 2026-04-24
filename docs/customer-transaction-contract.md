@@ -52,7 +52,3 @@ This document defines the shared transaction schema and lifecycle used by vendor
   - where `vendorId == uid`
   - where `status == ...`
   - order by `createdAt desc`
-
-## Security Note
-- Vendors need read access to customer profile documents for contact-to-Aitbaar mapping in the customer picker flow.
-- Customer profile writes remain owner-only (`customers/{uid}` can only be written by that same uid).
