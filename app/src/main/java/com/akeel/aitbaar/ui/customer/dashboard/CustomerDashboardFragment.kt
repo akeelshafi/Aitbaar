@@ -5,7 +5,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
@@ -29,7 +28,6 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
         val tvPhone = view.findViewById<TextView>(R.id.tvPhone)
         val tvTotalDue = view.findViewById<TextView>(R.id.tvTotalDueAmount)
         val tvDueSubtitle = view.findViewById<TextView>(R.id.tvDueSubtitle)
-        val tvViewAll = view.findViewById<TextView>(R.id.tvViewAll)
         val imgUser = view.findViewById<ImageView>(R.id.imgUser)
         val rvRecent = view.findViewById<RecyclerView>(R.id.rvVendors)
 
@@ -73,9 +71,7 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
                 )
 
                 val parsedTransactions = docs.mapNotNull { doc ->
-                    val displayName = doc.getString("vendorName")
-                        ?: doc.getString("customerName")
-                        ?: return@mapNotNull null
+                    val customerName = doc.getString("customerName") ?: return@mapNotNull null
                     val item = doc.getString("item").orEmpty()
                     val amount = (doc.getLong("amount") ?: 0L).toInt()
                     val createdAt = doc.getTimestamp("createdAt")
@@ -91,7 +87,7 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
                         createdAtMillis = createdAt?.toDate()?.time ?: 0L,
                         transaction = Transaction(
                             id = remoteId.toIntOrNull() ?: remoteId.hashCode(),
-                            customerName = displayName,
+                            customerName = customerName,
                             item = item,
                             amount = amount,
                             date = date,
@@ -116,10 +112,6 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
 
                 adapter.submitList(transactions.take(4))
             }
-
-        tvViewAll.setOnClickListener {
-            findNavController().navigate(R.id.action_customerDashboardFragment_to_allVendorTransactionsFragment)
-        }
     }
 
     override fun onDestroyView() {
