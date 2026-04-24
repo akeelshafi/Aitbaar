@@ -18,7 +18,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class AllVendorTransactionsFragment : Fragment(R.layout.fragment_all_vendor_transactions) {
+class AllVendorTransactionsFragment : Fragment(R.layout.fragment_vendors) {
 
     private var transactionsListener: ListenerRegistration? = null
     private var allTransactions: List<Transaction> = emptyList()
@@ -30,10 +30,9 @@ class AllVendorTransactionsFragment : Fragment(R.layout.fragment_all_vendor_tran
         val searchInput = view.findViewById<EditText>(R.id.etSearchCustomer)
         val recyclerView = view.findViewById<RecyclerView>(R.id.rvCustomers)
 
-        adapter = CustomerRecentTransactionAdapter()
-        adapter.setActionListeners(
-            onAccept = { tx -> updateTransactionDecision(tx.id, Status.ACCEPTED) },
-            onReject = { tx -> updateTransactionDecision(tx.id, Status.REJECTED) }
+        adapter = CustomerRecentTransactionAdapter(
+            onAcceptClick = { tx -> updateTransactionDecision(tx.id, Status.ACCEPTED) },
+            onRejectClick = { tx -> updateTransactionDecision(tx.id, Status.REJECTED) }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

@@ -55,10 +55,7 @@ service cloud.firestore {
     }
 
     match /customers/{customerId} {
-      allow read: if isSignedIn() && (
-        request.auth.uid == customerId ||
-        isVendor()
-      );
+      allow read: if isSignedIn() && request.auth.uid == customerId;
       allow write: if isSignedIn() && request.auth.uid == customerId;
     }
 
