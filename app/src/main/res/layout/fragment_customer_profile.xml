@@ -327,12 +327,12 @@
         <!-- ================= BOTTOM NAV ================= -->
         <androidx.cardview.widget.CardView
             android:id="@+id/customerBottomNav"
-            android:layout_margin="12dp"
             android:layout_width="0dp"
-            android:layout_height="64dp"
+            android:layout_height="60dp"
+            android:layout_margin="12dp"
             app:cardBackgroundColor="#FFFFFF"
-            app:cardCornerRadius="24dp"
-            app:cardElevation="8dp"
+            app:cardCornerRadius="30dp"
+            app:cardElevation="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -342,9 +342,11 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:orientation="horizontal"
-                android:weightSum="5">
+                android:weightSum="4">
 
+                <!-- Home -->
                 <LinearLayout
+                    android:id="@+id/tabHome"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -352,20 +354,23 @@
                     android:orientation="vertical">
 
                     <ImageView
+                        android:id="@+id/iconHome"
                         android:layout_width="22dp"
                         android:layout_height="22dp"
                         android:src="@drawable/home"
-                        app:tint="#3D7BFF" />
+                        app:tint="#7A8BA6" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Home"
-                        android:textColor="#3D7BFF"
+                        android:textColor="#7A8BA6"
                         android:textSize="12sp" />
                 </LinearLayout>
 
+                <!-- Customers -->
                 <LinearLayout
+                    android:id="@+id/tabCustomers"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -375,7 +380,7 @@
                     <ImageView
                         android:layout_width="22dp"
                         android:layout_height="22dp"
-                        android:src="@drawable/shop"
+                        android:src="@drawable/customer"
                         app:tint="#7A8BA6" />
 
                     <TextView
@@ -386,37 +391,9 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <androidx.cardview.widget.CardView
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    app:cardBackgroundColor="@android:color/transparent"
-                    app:cardElevation="0dp">
-
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:foregroundGravity="center">
-
-                        <androidx.cardview.widget.CardView
-                            android:layout_width="46dp"
-                            android:layout_height="46dp"
-                            android:layout_gravity="center"
-                            app:cardBackgroundColor="#3D7BFF"
-                            app:cardCornerRadius="28dp"
-                            app:cardElevation="6dp">
-
-                            <ImageView
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/rupee_indian"
-                                app:tint="#FFFFFF" />
-                        </androidx.cardview.widget.CardView>
-                    </FrameLayout>
-                </androidx.cardview.widget.CardView>
-
+                <!-- Confirm -->
                 <LinearLayout
+                    android:id="@+id/tabConfirm"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -432,12 +409,14 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Pending"
+                        android:text="Confirm"
                         android:textColor="#7A8BA6"
                         android:textSize="12sp" />
                 </LinearLayout>
 
+                <!-- Profile -->
                 <LinearLayout
+                    android:id="@+id/tabProfile"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
