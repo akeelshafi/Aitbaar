@@ -90,22 +90,41 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider" />
 
-        <!-- Edit Button -->
-        <TextView
-            android:id="@+id/btnAction"
+        <LinearLayout
+            android:id="@+id/actionContainer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_edit_button"
-            android:paddingHorizontal="18dp"
-            android:paddingVertical="6dp"
-            android:textStyle="bold"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="2dp"
-            android:text="Edit"
-            android:textColor="#FFFFFF"
-            android:textSize="13sp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/divider" />
+            app:layout_constraintTop_toBottomOf="@id/divider">
+
+            <TextView
+                android:id="@+id/btnSecondaryAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_secondary_action_button"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="6dp"
+                android:text="Reject"
+                android:textColor="#D9534F"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnPrimaryAction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_edit_button"
+                android:paddingHorizontal="18dp"
+                android:paddingVertical="6dp"
+                android:text="Accept"
+                android:textColor="#FFFFFF"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

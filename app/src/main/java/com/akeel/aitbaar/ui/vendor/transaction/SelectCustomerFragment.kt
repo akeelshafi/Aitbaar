@@ -22,6 +22,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class SelectCustomerFragment : Fragment() {
 
+    private data class RegisteredCustomer(
+        val uid: String,
+        val name: String,
+        val phone: String
+    )
+
     private lateinit var adapter: CustomerAdapter
     private val db by lazy { FirebaseFirestore.getInstance() }
 
@@ -58,7 +64,11 @@ class SelectCustomerFragment : Fragment() {
             onSelectCustomer = { customer ->
                 parentFragmentManager.setFragmentResult(
                     "customer_request",
-                    Bundle().apply { putString("customer_name", customer.aitbaarName ?: customer.name) }
+                    Bundle().apply {
+                        putString("customer_name", customer.aitbaarName ?: customer.name)
+                        putString("customer_uid", customer.uid)
+                        putString("customer_phone", customer.phone)
+                    }
                 )
                 findNavController().popBackStack()
             },
@@ -67,6 +77,8 @@ class SelectCustomerFragment : Fragment() {
             }
         )
         recycler.adapter = adapter
+
+        etSearchCustomer.isEnabled = false
 
         requestContactsAndLoad()
 
@@ -101,18 +113,25 @@ class SelectCustomerFragment : Fragment() {
             .addOnSuccessListener { query ->
                 val registeredByPhone = query.documents
                     .mapNotNull { doc ->
-                        val phone = normalizePhone(doc.getString("phoneNumber").orEmpty())
-                        if (phone.isBlank()) return@mapNotNull null
-                        phone to doc.getString("name").orEmpty()
+                        val rawPhone = doc.getString("phoneNumber").orEmpty()
+                        val normalizedPhone = normalizePhone(rawPhone)
+                        if (normalizedPhone.isBlank()) return@mapNotNull null
+
+                        val uid = doc.id
+                        val name = doc.getString("name").orEmpty()
+                        val phone = rawPhone.ifBlank { normalizedPhone }
+                        normalizedPhone to RegisteredCustomer(uid, name, phone)
                     }
                     .toMap()
 
                 val mapped = contacts.map { contact ->
                     val normalized = normalizePhone(contact.phone)
-                    val aitbaarName = registeredByPhone[normalized]
+                    val registered = registeredByPhone[normalized]
                     contact.copy(
-                        isOnAitbaar = aitbaarName != null,
-                        aitbaarName = aitbaarName
+                        uid = registered?.uid,
+                        phone = registered?.phone ?: contact.phone,
+                        isOnAitbaar = registered != null,
+                        aitbaarName = registered?.name
                     )
                 }.sortedWith(
                     compareByDescending<Customer> { it.isOnAitbaar }

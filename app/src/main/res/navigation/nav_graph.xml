@@ -111,7 +111,23 @@
         android:id="@+id/customerDashboardFragment"
         android:name="com.akeel.aitbaar.ui.customer.dashboard.CustomerDashboardFragment"
         android:label="fragment_customer_dashboard"
-        tools:layout="@layout/fragment_customer_dashboard" />
+        tools:layout="@layout/fragment_customer_dashboard" >
+        <action
+            android:id="@+id/action_customerDashboardFragment_to_allVendorTransactionsFragment"
+            app:destination="@id/allVendorTransactionsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragmentVendors"
+        android:name="com.akeel.aitbaar.ui.customer.vendors.FragmentVendors"
+        android:label="fragment_vendors"
+        tools:layout="@layout/fragment_vendors" />
+
+    <fragment
+        android:id="@+id/allVendorTransactionsFragment"
+        android:name="com.akeel.aitbaar.ui.customer.vendors.AllVendorTransactionsFragment"
+        android:label="fragment_all_vendor_transactions"
+        tools:layout="@layout/fragment_all_vendor_transactions" />
 
     <!-- ✅ Vendor Dashboard -->
     <fragment
