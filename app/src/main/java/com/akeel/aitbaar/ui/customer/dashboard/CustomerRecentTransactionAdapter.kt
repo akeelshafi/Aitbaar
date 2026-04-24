@@ -12,6 +12,8 @@ import com.akeel.aitbaar.data.model.Transaction
 class CustomerRecentTransactionAdapter : RecyclerView.Adapter<CustomerRecentTransactionAdapter.ViewHolder>() {
 
     private var list: List<Transaction> = emptyList()
+    private var onAcceptClick: (Transaction) -> Unit = {}
+    private var onRejectClick: (Transaction) -> Unit = {}
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvName: TextView = view.findViewById(R.id.tvCustomerName)
@@ -20,7 +22,8 @@ class CustomerRecentTransactionAdapter : RecyclerView.Adapter<CustomerRecentTran
         val tvDate: TextView = view.findViewById(R.id.tvDate)
         val tvStatus: TextView = view.findViewById(R.id.tvStatus)
         val btnPrimaryAction: TextView = view.findViewById(R.id.btnPrimaryAction)
-        val btnSecondaryAction: TextView = view.findViewById(R.id.btnSecondaryAction)    }
+        val btnSecondaryAction: TextView = view.findViewById(R.id.btnSecondaryAction)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -35,24 +38,45 @@ class CustomerRecentTransactionAdapter : RecyclerView.Adapter<CustomerRecentTran
         holder.tvItem.text = tx.item
         holder.tvAmount.text = "₹${tx.amount}"
         holder.tvDate.text = tx.date
-        holder.btnPrimaryAction.visibility = View.GONE
-        holder.btnSecondaryAction.visibility = View.GONE
+        holder.btnPrimaryAction.visibility = View.VISIBLE
+        holder.btnSecondaryAction.visibility = View.VISIBLE
+        holder.btnPrimaryAction.text = "Accept"
+        holder.btnSecondaryAction.text = "Reject"
+        holder.btnPrimaryAction.setOnClickListener { onAcceptClick(tx) }
+        holder.btnSecondaryAction.setOnClickListener { onRejectClick(tx) }
+
         when (tx.status) {
             Status.ACCEPTED -> {
                 holder.tvStatus.text = "ACCEPTED"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_accepted)
+                holder.btnPrimaryAction.alpha = 0.5f
+                holder.btnSecondaryAction.alpha = 0.5f
+                holder.btnPrimaryAction.isEnabled = false
+                holder.btnSecondaryAction.isEnabled = false
             }
             Status.PENDING -> {
                 holder.tvStatus.text = "PENDING"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
+                holder.btnPrimaryAction.alpha = 1f
+                holder.btnSecondaryAction.alpha = 1f
+                holder.btnPrimaryAction.isEnabled = true
+                holder.btnSecondaryAction.isEnabled = true
             }
             Status.REJECTED -> {
                 holder.tvStatus.text = "REJECTED"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_rejected)
+                holder.btnPrimaryAction.alpha = 0.5f
+                holder.btnSecondaryAction.alpha = 0.5f
+                holder.btnPrimaryAction.isEnabled = false
+                holder.btnSecondaryAction.isEnabled = false
             }
             Status.PAID -> {
                 holder.tvStatus.text = "PAID"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_paid)
+                holder.btnPrimaryAction.alpha = 0.5f
+                holder.btnSecondaryAction.alpha = 0.5f
+                holder.btnPrimaryAction.isEnabled = false
+                holder.btnSecondaryAction.isEnabled = false
             }
         }
     }
@@ -62,5 +86,13 @@ class CustomerRecentTransactionAdapter : RecyclerView.Adapter<CustomerRecentTran
     fun submitList(newList: List<Transaction>) {
         list = newList
         notifyDataSetChanged()
+    }
+
+    fun setActionListeners(
+        onAccept: (Transaction) -> Unit,
+        onReject: (Transaction) -> Unit
+    ) {
+        onAcceptClick = onAccept
+        onRejectClick = onReject
     }
 }
