@@ -19,7 +19,8 @@ class TransactionAdapter(
         val amount = view.findViewById<TextView>(R.id.tvAmount)
         val date = view.findViewById<TextView>(R.id.tvDate)
         val status = view.findViewById<TextView>(R.id.tvStatus)
-        val button = view.findViewById<TextView>(R.id.btnAction)
+        val primaryButton = view.findViewById<TextView>(R.id.btnPrimaryAction)
+        val secondaryButton = view.findViewById<TextView>(R.id.btnSecondaryAction)
 
     }
 
@@ -37,36 +38,37 @@ class TransactionAdapter(
         holder.amount.text = "₹${transaction.amount}"
         holder.date.text = transaction.date
 
-        holder.button.setOnClickListener {
+        holder.primaryButton.setOnClickListener {
             onEditClick(transaction)
         }
+        holder.secondaryButton.visibility = View.GONE
 
         when (transaction.status) {
 
             Status.ACCEPTED -> {
                 holder.status.text = "ACCEPTED"
                 holder.status.setBackgroundResource(R.drawable.bg_status_accepted)
-                holder.button.visibility = View.GONE
+                holder.primaryButton.visibility = View.GONE
             }
 
             Status.PENDING -> {
                 holder.status.text = "PENDING"
                 holder.status.setBackgroundResource(R.drawable.bg_status_pending)
-                holder.button.visibility = View.VISIBLE
-                holder.button.text = "Edit"
+                holder.primaryButton.visibility = View.VISIBLE
+                holder.primaryButton.text = "Edit"
             }
 
             Status.REJECTED -> {
                 holder.status.text = "REJECTED"
                 holder.status.setBackgroundResource(R.drawable.bg_status_rejected)
-                holder.button.visibility = View.VISIBLE
-                holder.button.text = "Correct"
+                holder.primaryButton.visibility = View.VISIBLE
+                holder.primaryButton.text = "Correct"
             }
 
             Status.PAID -> {
                 holder.status.text = "PAID"
                 holder.status.setBackgroundResource(R.drawable.bg_status_paid)
-                holder.button.visibility = View.GONE
+                holder.primaryButton.visibility = View.GONE
             }
         }
     }
