@@ -30,10 +30,9 @@ class AllVendorTransactionsFragment : Fragment(R.layout.fragment_vendors) {
         val searchInput = view.findViewById<EditText>(R.id.etSearchCustomer)
         val recyclerView = view.findViewById<RecyclerView>(R.id.rvCustomers)
 
-        adapter = CustomerRecentTransactionAdapter()
-        adapter.setActionListeners(
-            onAccept = { tx -> updateTransactionDecision(tx.id, Status.ACCEPTED) },
-            onReject = { tx -> updateTransactionDecision(tx.id, Status.REJECTED) }
+        adapter = CustomerRecentTransactionAdapter(
+            onAcceptClick = { tx -> updateTransactionDecision(tx.id, Status.ACCEPTED) },
+            onRejectClick = { tx -> updateTransactionDecision(tx.id, Status.REJECTED) }
         )
 
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

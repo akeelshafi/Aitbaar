@@ -5,13 +5,11 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
 import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
-import com.google.firebase.firestore.FieldValue
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
@@ -30,15 +28,10 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
         val tvPhone = view.findViewById<TextView>(R.id.tvPhone)
         val tvTotalDue = view.findViewById<TextView>(R.id.tvTotalDueAmount)
         val tvDueSubtitle = view.findViewById<TextView>(R.id.tvDueSubtitle)
-        val tvViewAll = view.findViewById<TextView>(R.id.tvViewAll)
         val imgUser = view.findViewById<ImageView>(R.id.imgUser)
         val rvRecent = view.findViewById<RecyclerView>(R.id.rvVendors)
 
         val adapter = CustomerRecentTransactionAdapter()
-        adapter.setActionListeners(
-            onAccept = { tx -> updateTransactionDecision(tx.id, Status.ACCEPTED) },
-            onReject = { tx -> updateTransactionDecision(tx.id, Status.REJECTED) }
-        )
         rvRecent.layoutManager = LinearLayoutManager(requireContext())
         rvRecent.adapter = adapter
 
@@ -78,9 +71,7 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
                 )
 
                 val parsedTransactions = docs.mapNotNull { doc ->
-                    val displayName = doc.getString("vendorName")
-                        ?: doc.getString("customerName")
-                        ?: return@mapNotNull null
+                    val customerName = doc.getString("customerName") ?: return@mapNotNull null
                     val item = doc.getString("item").orEmpty()
                     val amount = (doc.getLong("amount") ?: 0L).toInt()
                     val createdAt = doc.getTimestamp("createdAt")
@@ -96,7 +87,7 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
                         createdAtMillis = createdAt?.toDate()?.time ?: 0L,
                         transaction = Transaction(
                             id = remoteId.toIntOrNull() ?: remoteId.hashCode(),
-                            customerName = displayName,
+                            customerName = customerName,
                             item = item,
                             amount = amount,
                             date = date,
@@ -120,39 +111,6 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
                 tvDueSubtitle.text = "You owe $distinctVendorCount vendors"
 
                 adapter.submitList(transactions.take(4))
-            }
-
-        tvViewAll.setOnClickListener {
-            findNavController().navigate(R.id.action_customerDashboardFragment_to_allVendorTransactionsFragment)
-        }
-    }
-
-    private fun updateTransactionDecision(transactionId: Int, newStatus: Status) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
-        val db = FirebaseFirestore.getInstance()
-
-        db.collection("transactions")
-            .whereEqualTo("customerId", uid)
-            .whereEqualTo("transactionId", transactionId.toString())
-            .limit(1)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val doc = snapshot.documents.firstOrNull() ?: return@addOnSuccessListener
-                val current = doc.getString("status").orEmpty()
-                if (current != Status.PENDING.name) return@addOnSuccessListener
-
-                val updates = hashMapOf<String, Any>(
-                    "status" to newStatus.name,
-                    "updatedAt" to FieldValue.serverTimestamp()
-                )
-
-                when (newStatus) {
-                    Status.ACCEPTED -> updates["approvedAt"] = FieldValue.serverTimestamp()
-                    Status.REJECTED -> updates["rejectedAt"] = FieldValue.serverTimestamp()
-                    else -> Unit
-                }
-
-                doc.reference.update(updates)
             }
     }
 
