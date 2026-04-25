@@ -1,60 +1,140 @@
 package com.akeel.aitbaar.ui.customer.confirm
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
+import android.widget.TextView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
+import com.akeel.aitbaar.data.model.Status
+import com.akeel.aitbaar.data.model.Transaction
+import com.akeel.aitbaar.ui.customer.CustomerDataViewModel
+import com.akeel.aitbaar.ui.customer.CustomerNavHelper
+import com.akeel.aitbaar.ui.customer.dashboard.CustomerRecentTransactionAdapter
+import com.akeel.aitbaar.ui.customer.transactions.RejectReasonBottomSheet
+import kotlin.math.abs
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ConfirmFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
-class ConfirmFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+    private val viewModel: CustomerDataViewModel by activityViewModels()
+    private val adapter = CustomerRecentTransactionAdapter()
+    private var allTransactions = emptyList<Transaction>()
+    private var selectedIndex = 0 // 0 = Pending, 1 = Accepted, 2 = Rejected
+    private var isIndicatorInitialized = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val rvConfirm = view.findViewById<RecyclerView>(R.id.rvConfirmTransactions)
+        val tabPending = view.findViewById<TextView>(R.id.tabPending)
+        val tabAccepted = view.findViewById<TextView>(R.id.tabAccepted)
+        val tabRejected = view.findViewById<TextView>(R.id.tabRejected)
+        val tabIndicator = view.findViewById<View>(R.id.tabIndicator)
+
+        rvConfirm.layoutManager = LinearLayoutManager(requireContext())
+        rvConfirm.adapter = adapter
+
+        adapter.setActionListeners(
+            onAccept = { tx ->
+                adapter.markDecisionLocally(tx.id, Status.ACCEPTED)
+                viewModel.updateTransactionStatus(tx.id, Status.ACCEPTED, null)
+            },
+            onReject = { tx ->
+                RejectReasonBottomSheet { reason ->
+                    adapter.markDecisionLocally(tx.id, Status.REJECTED)
+                    viewModel.updateTransactionStatus(tx.id, Status.REJECTED, reason)
+                }.show(parentFragmentManager, "reject_reason_sheet")
+            }
+        )
+
+        fun moveIndicatorTo(tab: TextView, animate: Boolean) {
+            val x = tab.x + (tab.width - tabIndicator.width) / 2f
+            if (animate) {
+                tabIndicator.animate().x(x).setDuration(150).start()
+            } else {
+                tabIndicator.x = x
+            }
         }
-    }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_confirm2, container, false)
-    }
+        fun selectTab(index: Int, animate: Boolean = true) {
+            selectedIndex = index
+            val shouldAnimateIndicator = animate && isIndicatorInitialized
+            when (index) {
+                0 -> {
+                    tabPending.setTextColor(requireContext().getColor(R.color.blue))
+                    tabAccepted.setTextColor(requireContext().getColor(R.color.gray))
+                    tabRejected.setTextColor(requireContext().getColor(R.color.gray))
+                    moveIndicatorTo(tabPending, shouldAnimateIndicator)
+                    adapter.submitList(allTransactions.filter { it.status == Status.PENDING })
+                }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ConfirmFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            ConfirmFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                1 -> {
+                    tabPending.setTextColor(requireContext().getColor(R.color.gray))
+                    tabAccepted.setTextColor(requireContext().getColor(R.color.blue))
+                    tabRejected.setTextColor(requireContext().getColor(R.color.gray))
+                    moveIndicatorTo(tabAccepted, shouldAnimateIndicator)
+                    adapter.submitList(allTransactions.filter { it.status == Status.ACCEPTED })
+                }
+
+                else -> {
+                    tabPending.setTextColor(requireContext().getColor(R.color.gray))
+                    tabAccepted.setTextColor(requireContext().getColor(R.color.gray))
+                    tabRejected.setTextColor(requireContext().getColor(R.color.blue))
+                    moveIndicatorTo(tabRejected, shouldAnimateIndicator)
+                    adapter.submitList(allTransactions.filter { it.status == Status.REJECTED })
                 }
             }
+            isIndicatorInitialized = true
+        }
+
+        val gestureDetector = GestureDetector(requireContext(),
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onDown(e: MotionEvent): Boolean = true
+
+                override fun onFling(
+                    e1: MotionEvent?,
+                    e2: MotionEvent,
+                    velocityX: Float,
+                    velocityY: Float
+                ): Boolean {
+                    val start = e1 ?: return false
+                    val diffX = e2.x - start.x
+                    val diffY = e2.y - start.y
+                    if (abs(diffX) > abs(diffY) && abs(diffX) > 90 && abs(velocityX) > 90) {
+                        if (diffX < 0) {
+                            selectTab((selectedIndex + 1).coerceAtMost(2))
+                        } else {
+                            selectTab((selectedIndex - 1).coerceAtLeast(0))
+                        }
+                        return true
+                    }
+                    return false
+                }
+            }
+        )
+
+        rvConfirm.setOnTouchListener { _, event ->
+            gestureDetector.onTouchEvent(event)
+            false
+        }
+
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
+            allTransactions = state.allTransactions
+            selectTab(selectedIndex, animate = false)
+        }
+        viewModel.ensureLoaded()
+
+        tabPending.setOnClickListener { selectTab(0) }
+        tabAccepted.setOnClickListener { selectTab(1) }
+        tabRejected.setOnClickListener { selectTab(2) }
+
+        tabPending.post { selectTab(0, animate = false) }
+
+        CustomerNavHelper.setup(this, view)
+        CustomerNavHelper.highlight(this, view, R.id.tabConfirm)
     }
 }
