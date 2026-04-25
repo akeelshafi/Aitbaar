@@ -196,4 +196,14 @@
             app:argType="string" />
     </fragment>
 
+    <action
+        android:id="@+id/action_customerDashboardFragment_to_allVendorTransactionsFragment"
+        app:destination="@id/allVendorTransactionsFragment" />
+
+    <fragment
+        android:id="@+id/allVendorTransactionsFragment"
+        android:name="com.akeel.aitbaar.ui.customer.vendors.AllVendorTransactionsFragment"
+        android:label="fragment_all_vendor_transactions"
+        tools:layout="@layout/fragment_all_vendor_transactions" />
+
 </navigation>

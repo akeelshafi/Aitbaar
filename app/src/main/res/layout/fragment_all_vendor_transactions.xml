@@ -4,56 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.customer.vendors.AllVendorTransactionsFragment"
-    android:background="@drawable/aitbaar_background">
-
+    android:background="@drawable/aitbaar_background"
+    tools:context=".ui.customer.vendors.AllVendorTransactionsFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:padding="12dp">
 
-        <!-- ================= HEADER ================= -->
-        <LinearLayout
-            android:id="@+id/topHeader"
+        <TextView
+            android:id="@+id/tvAllTransactionsTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
+            android:text="All Transactions"
+            android:textColor="#233C73"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAllTransactions"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:clipToPadding="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:layout_width="90dp"
-                android:layout_height="90dp"
-                android:contentDescription="logo"
-                android:src="@drawable/shield_aitbaar" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="-14dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Aitbaar"
-                    android:textColor="#2B579A"
-                    android:textSize="26sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Digital Ledger of Trust"
-                    android:textColor="#7A8BA6"
-                    android:textSize="12sp" />
-            </LinearLayout>
-        </LinearLayout>
-
+            app:layout_constraintTop_toBottomOf="@id/tvAllTransactionsTitle" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </FrameLayout>

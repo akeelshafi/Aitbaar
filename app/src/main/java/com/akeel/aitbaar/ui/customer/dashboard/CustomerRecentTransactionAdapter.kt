@@ -38,49 +38,61 @@ class CustomerRecentTransactionAdapter : RecyclerView.Adapter<CustomerRecentTran
         holder.tvItem.text = tx.item
         holder.tvAmount.text = "₹${tx.amount}"
         holder.tvDate.text = tx.date
-        holder.btnPrimaryAction.visibility = View.VISIBLE
-        holder.btnSecondaryAction.visibility = View.VISIBLE
+
         holder.btnPrimaryAction.text = "Accept"
         holder.btnSecondaryAction.text = "Reject"
-        holder.btnPrimaryAction.setOnClickListener { onAcceptClick(tx) }
-        holder.btnSecondaryAction.setOnClickListener { onRejectClick(tx) }
 
         when (tx.status) {
-            Status.ACCEPTED -> {
-                holder.tvStatus.text = "ACCEPTED"
-                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_accepted)
-                holder.btnPrimaryAction.alpha = 0.5f
-                holder.btnSecondaryAction.alpha = 0.5f
-                holder.btnPrimaryAction.isEnabled = false
-                holder.btnSecondaryAction.isEnabled = false
-            }
             Status.PENDING -> {
                 holder.tvStatus.text = "PENDING"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_pending)
-                holder.btnPrimaryAction.alpha = 1f
-                holder.btnSecondaryAction.alpha = 1f
-                holder.btnPrimaryAction.isEnabled = true
-                holder.btnSecondaryAction.isEnabled = true
+
+                // show buttons only for pending
+                holder.btnPrimaryAction.visibility = View.VISIBLE
+                holder.btnSecondaryAction.visibility = View.VISIBLE
+
+                holder.btnPrimaryAction.setOnClickListener { onAcceptClick(tx) }
+                holder.btnSecondaryAction.setOnClickListener { onRejectClick(tx) }
             }
+
+            Status.ACCEPTED -> {
+                holder.tvStatus.text = "ACCEPTED"
+                holder.tvStatus.setBackgroundResource(R.drawable.bg_status_accepted)
+
+                // hide buttons after decision
+                holder.btnPrimaryAction.visibility = View.GONE
+                holder.btnSecondaryAction.visibility = View.GONE
+            }
+
             Status.REJECTED -> {
                 holder.tvStatus.text = "REJECTED"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_rejected)
-                holder.btnPrimaryAction.alpha = 0.5f
-                holder.btnSecondaryAction.alpha = 0.5f
-                holder.btnPrimaryAction.isEnabled = false
-                holder.btnSecondaryAction.isEnabled = false
+
+                // hide buttons after decision
+                holder.btnPrimaryAction.visibility = View.GONE
+                holder.btnSecondaryAction.visibility = View.GONE
             }
+
             Status.PAID -> {
                 holder.tvStatus.text = "PAID"
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_status_paid)
-                holder.btnPrimaryAction.alpha = 0.5f
-                holder.btnSecondaryAction.alpha = 0.5f
-                holder.btnPrimaryAction.isEnabled = false
-                holder.btnSecondaryAction.isEnabled = false
+
+                holder.btnPrimaryAction.visibility = View.GONE
+                holder.btnSecondaryAction.visibility = View.GONE
             }
         }
     }
 
+    fun markDecisionLocally(transactionId: Int, newStatus: Status) {
+        val index = list.indexOfFirst { it.id == transactionId }
+        if (index == -1) return
+
+        val mutable = list.toMutableList()
+        val old = mutable[index]
+        mutable[index] = old.copy(status = newStatus)
+        list = mutable
+        notifyItemChanged(index)
+    }
     override fun getItemCount(): Int = list.size
 
     fun submitList(newList: List<Transaction>) {

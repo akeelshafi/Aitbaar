@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/tvTitleRejectReason"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Rejection Reason"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:textColor="#233C73"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:id="@+id/tvReasonAmount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wrong amount"
+        android:padding="12dp"
+        android:textSize="16sp"
+        android:textColor="#2A2F36"
+        android:background="@drawable/bg_secondary_action_button"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvReasonItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wrong item/description"
+        android:padding="12dp"
+        android:textSize="16sp"
+        android:textColor="#2A2F36"
+        android:background="@drawable/bg_secondary_action_button"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvReasonNotMine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="This transaction is not mine"
+        android:padding="12dp"
+        android:textSize="16sp"
+        android:textColor="#2A2F36"
+        android:background="@drawable/bg_secondary_action_button"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/tvReasonOther"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Other"
+        android:padding="12dp"
+        android:textSize="16sp"
+        android:textColor="#2A2F36"
+        android:background="@drawable/bg_secondary_action_button" />
+
+</LinearLayout>
