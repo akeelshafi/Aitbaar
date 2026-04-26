@@ -2,6 +2,7 @@ package com.akeel.aitbaar.ui.customer.vendors
 
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,6 +21,8 @@ class AllVendorTransactionsFragment : Fragment(R.layout.fragment_all_vendor_tran
         super.onViewCreated(view, savedInstanceState)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.rvAllTransactions)
+        val tvEmptyState = view.findViewById<TextView>(R.id.tvEmptyState)
+
         val adapter = CustomerRecentTransactionAdapter()
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
@@ -39,6 +42,8 @@ class AllVendorTransactionsFragment : Fragment(R.layout.fragment_all_vendor_tran
 
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.allTransactions)
+            tvEmptyState.text = "No transactions yet"
+            tvEmptyState.visibility = if (state.allTransactions.isEmpty()) View.VISIBLE else View.GONE
         }
 
         viewModel.ensureLoaded()
