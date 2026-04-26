@@ -1,79 +1,46 @@
 package com.akeel.aitbaar.ui.vendor.transaction
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akeel.aitbaar.R
-import com.akeel.aitbaar.data.model.Status
-import com.akeel.aitbaar.data.model.Transaction
-import com.akeel.aitbaar.data.repository.TransactionRepository
-import kotlinx.coroutines.launch
+import com.akeel.aitbaar.ui.vendor.VendorDataViewModel
 
-class AllTransactionsFragment : Fragment() {
+class AllTransactionsFragment : Fragment(R.layout.fragment_all_transactions) {
 
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-
-        }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_all_transactions, container, false)
-    }
+    private val viewModel: VendorDataViewModel by activityViewModels()
+    private lateinit var adapter: TransactionAdapter
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-
-/*
-        fun getDummyTransactions(): List<Transaction> {
-            return listOf(
-                Transaction("Akeel", "Milk + Bread", 5000, "06 Feb 2026", Status.ACCEPTED),
-                Transaction("Rafiq", "Rice", 80, "05 Feb 2026", Status.PENDING),
-                Transaction("Imran", "Eggs", 60, "04 Feb 2026", Status.REJECTED),
-                Transaction("Akeel", "Milk + Bread", 120, "06 Feb 2026", Status.ACCEPTED),
-                Transaction("Rafiq", "Rice", 80, "05 Feb 2026", Status.PENDING),
-                Transaction("Imran", "Eggs", 60, "04 Feb 2026", Status.REJECTED),
-                Transaction("Akeel", "Milk + Bread", 120, "06 Feb 2026", Status.ACCEPTED),
-                Transaction("Rafiq", "Rice", 80, "05 Feb 2026", Status.PENDING),
-                Transaction("Imran", "Eggs", 60, "04 Feb 2026", Status.REJECTED)
-            )
-        }
-*/
-
-
         val recycler = view.findViewById<RecyclerView>(R.id.rvAllTransactions)
+        val tvEmptyState = view.findViewById<TextView>(R.id.tvEmptyState)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
-
-        viewLifecycleOwner.lifecycleScope.launch {
-            TransactionRepository.getAllTransactions().collect { transactions ->
-
-                recycler.adapter = TransactionAdapter(transactions) { transaction ->
-
-                    val bundle = Bundle().apply {
-                        putString("transactionId", transaction.id.toString())
-                    }
-
-                    findNavController().navigate(
-                        R.id.addTransactionFragment,
-                        bundle
-                    )
-                }
+        adapter = TransactionAdapter(emptyList()) { transaction ->
+            val bundle = Bundle().apply {
+                putString("transactionId", transaction.id.toString())
             }
+            findNavController().navigate(R.id.addTransactionFragment, bundle)
         }
-    }
+        recycler.adapter = adapter
 
+        view.findViewById<View>(R.id.btnBack).setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
+            adapter.submitList(state.allTransactions)
+            tvEmptyState.text = "No transactions yet"
+            tvEmptyState.visibility = if (state.allTransactions.isEmpty()) View.VISIBLE else View.GONE
+        }
+
+        viewModel.ensureLoaded()
+    }
 }
