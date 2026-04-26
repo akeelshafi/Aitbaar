@@ -209,20 +209,26 @@ class CustomerCreateProfileFragment : Fragment() {
             .document(uid)
             .set(customerMap, SetOptions.merge())
             .addOnSuccessListener {
+                if (!isAdded) return@addOnSuccessListener
                 Toast.makeText(
                     requireContext(),
                     if (isEditMode) "Profile Updated ✅" else "Customer Profile Saved ✅",
                     Toast.LENGTH_SHORT
+                ).show()
+
+                findNavController().navigate(
+                    R.id.customerDashboardFragment,
+                    null,
+                    androidx.navigation.NavOptions.Builder()
+                        .setPopUpTo(R.id.nav_graph, true)
+                        .build()
                 )
-                    .show()
-                findNavController().navigateUp()
             }
             .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG)
-                    .show()
+                if (!isAdded) return@addOnFailureListener
+                Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
-
     private fun bitmapToBase64(bitmap: Bitmap): String {
         val maxSide = 512
         val scaled = if (bitmap.width > maxSide || bitmap.height > maxSide) {
