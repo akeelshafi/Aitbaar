@@ -34,6 +34,7 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
         val tabAccepted = view.findViewById<TextView>(R.id.tabAccepted)
         val tabRejected = view.findViewById<TextView>(R.id.tabRejected)
         val tabIndicator = view.findViewById<View>(R.id.tabIndicator)
+        val tvEmptyState = view.findViewById<TextView>(R.id.tvEmptyState)
 
         rvConfirm.layoutManager = LinearLayoutManager(requireContext())
         rvConfirm.adapter = adapter
@@ -63,13 +64,15 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
         fun selectTab(index: Int, animate: Boolean = true) {
             selectedIndex = index
             val shouldAnimateIndicator = animate && isIndicatorInitialized
-            when (index) {
+
+            val filtered = when (index) {
                 0 -> {
                     tabPending.setTextColor(requireContext().getColor(R.color.blue))
                     tabAccepted.setTextColor(requireContext().getColor(R.color.gray))
                     tabRejected.setTextColor(requireContext().getColor(R.color.gray))
                     moveIndicatorTo(tabPending, shouldAnimateIndicator)
-                    adapter.submitList(allTransactions.filter { it.status == Status.PENDING })
+                    tvEmptyState.text = "No pending transactions"
+                    allTransactions.filter { it.status == Status.PENDING }
                 }
 
                 1 -> {
@@ -77,7 +80,8 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
                     tabAccepted.setTextColor(requireContext().getColor(R.color.blue))
                     tabRejected.setTextColor(requireContext().getColor(R.color.gray))
                     moveIndicatorTo(tabAccepted, shouldAnimateIndicator)
-                    adapter.submitList(allTransactions.filter { it.status == Status.ACCEPTED })
+                    tvEmptyState.text = "No accepted transactions"
+                    allTransactions.filter { it.status == Status.ACCEPTED }
                 }
 
                 else -> {
@@ -85,13 +89,18 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
                     tabAccepted.setTextColor(requireContext().getColor(R.color.gray))
                     tabRejected.setTextColor(requireContext().getColor(R.color.blue))
                     moveIndicatorTo(tabRejected, shouldAnimateIndicator)
-                    adapter.submitList(allTransactions.filter { it.status == Status.REJECTED })
+                    tvEmptyState.text = "No rejected transactions"
+                    allTransactions.filter { it.status == Status.REJECTED }
                 }
             }
+
+            adapter.submitList(filtered)
+            tvEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
             isIndicatorInitialized = true
         }
 
-        val gestureDetector = GestureDetector(requireContext(),
+        val gestureDetector = GestureDetector(
+            requireContext(),
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onDown(e: MotionEvent): Boolean = true
 
