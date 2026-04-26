@@ -356,7 +356,7 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Customers -->
+                <!-- Vendors -->
                 <LinearLayout
                     android:id="@+id/tabCustomers"
                     android:layout_width="0dp"

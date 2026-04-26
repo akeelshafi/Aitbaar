@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.customer.confirm.ConfirmFragment">
+    tools:context=".ui.customer.confirm.ConfirmFragment"
+    android:background="@drawable/aitbaar_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -97,9 +98,9 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Accepted"
-                android:textStyle="bold"
                 android:textColor="#7A8BA6"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tabRejected"
@@ -108,9 +109,9 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="Rejected"
-                android:textStyle="bold"
                 android:textColor="#7A8BA6"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <!-- Selected Tab Indicator -->
@@ -118,12 +119,12 @@
             android:id="@+id/tabIndicator"
             android:layout_width="80dp"
             android:layout_height="3dp"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:background="#3D7BFF"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.100"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tabContainer" />
-
 
         <!-- ================= TRANSACTION LIST ================= -->
 
@@ -183,7 +184,7 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Customers -->
+                <!-- Vendors -->
                 <LinearLayout
                     android:id="@+id/tabCustomers"
                     android:layout_width="0dp"

@@ -121,7 +121,21 @@
         android:id="@+id/fragmentVendors"
         android:name="com.akeel.aitbaar.ui.customer.vendors.FragmentVendors"
         android:label="fragment_vendors"
-        tools:layout="@layout/fragment_vendors" />
+        tools:layout="@layout/fragment_vendors" >
+        <action
+            android:id="@+id/action_fragmentVendors_to_customerVendorLedgerFragment"
+            app:destination="@id/customerVendorLedgerFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/customerVendorLedgerFragment"
+        android:name="com.akeel.aitbaar.ui.customer.vendors.CustomerVendorLedgerFragment"
+        android:label="fragment_customer_ledger"
+        tools:layout="@layout/fragment_customer_vendor_ledger" >
+        <argument
+            android:name="vendorName"
+            app:argType="string" />
+    </fragment>
 
     <!-- ✅ Vendor Dashboard -->
     <fragment
@@ -205,5 +219,19 @@
         android:name="com.akeel.aitbaar.ui.customer.vendors.AllVendorTransactionsFragment"
         android:label="fragment_all_vendor_transactions"
         tools:layout="@layout/fragment_all_vendor_transactions" />
+
+    <fragment
+        android:id="@+id/customerConfirmFragment"
+        android:name="com.akeel.aitbaar.ui.customer.confirm.ConfirmFragment"
+        android:label="fragment_confirm2"
+        tools:layout="@layout/fragment_confirm2" />
+
+    <fragment
+        android:id="@+id/customerProfileFragment"
+        android:name="com.akeel.aitbaar.ui.customer.profile.CustomerProfileFragment"
+        android:label="fragment_customer_profile"
+        tools:layout="@layout/fragment_customer_profile" />
+
+
 
 </navigation>

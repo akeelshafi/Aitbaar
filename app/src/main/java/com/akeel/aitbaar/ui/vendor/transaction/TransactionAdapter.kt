@@ -10,10 +10,12 @@ import com.akeel.aitbaar.data.model.Status
 import com.akeel.aitbaar.data.model.Transaction
 
 class TransactionAdapter(
-    private var list: List<Transaction>,private val onEditClick: (Transaction) -> Unit
+    private var list: List<Transaction>,
+    private val showActionButtons: Boolean = true,
+    private val onEditClick: (Transaction) -> Unit
 ) : RecyclerView.Adapter<TransactionAdapter.TransactionViewHolder>() {
 
-     class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name = view.findViewById<TextView>(R.id.tvCustomerName)
         val item = view.findViewById<TextView>(R.id.tvItem)
         val amount = view.findViewById<TextView>(R.id.tvAmount)
@@ -21,7 +23,7 @@ class TransactionAdapter(
         val status = view.findViewById<TextView>(R.id.tvStatus)
         val primaryButton = view.findViewById<TextView>(R.id.btnPrimaryAction)
         val secondaryButton = view.findViewById<TextView>(R.id.btnSecondaryAction)
-
+        val actionContainer = view.findViewById<View>(R.id.actionContainer)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TransactionViewHolder {
@@ -43,6 +45,12 @@ class TransactionAdapter(
         }
         holder.secondaryButton.visibility = View.GONE
 
+        if (!showActionButtons) {
+            holder.actionContainer.visibility = View.GONE
+        } else {
+            holder.actionContainer.visibility = View.VISIBLE
+        }
+
         when (transaction.status) {
 
             Status.ACCEPTED -> {
@@ -54,14 +62,14 @@ class TransactionAdapter(
             Status.PENDING -> {
                 holder.status.text = "PENDING"
                 holder.status.setBackgroundResource(R.drawable.bg_status_pending)
-                holder.primaryButton.visibility = View.VISIBLE
+                holder.primaryButton.visibility = if (showActionButtons) View.VISIBLE else View.GONE
                 holder.primaryButton.text = "Edit"
             }
 
             Status.REJECTED -> {
                 holder.status.text = "REJECTED"
                 holder.status.setBackgroundResource(R.drawable.bg_status_rejected)
-                holder.primaryButton.visibility = View.VISIBLE
+                holder.primaryButton.visibility = if (showActionButtons) View.VISIBLE else View.GONE
                 holder.primaryButton.text = "Correct"
             }
 

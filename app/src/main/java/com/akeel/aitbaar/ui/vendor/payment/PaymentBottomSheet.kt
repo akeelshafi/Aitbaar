@@ -7,9 +7,13 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.akeel.aitbaar.R
 import com.akeel.aitbaar.data.repository.TransactionRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -70,7 +74,54 @@ class PaymentBottomSheet(
                     amount = amount,
                     date = tvDate.text.toString()
                 )
-                dismiss()
+                syncPaymentToCloud(amount) {
+                    onPaymentAdded.invoke()
+                    dismiss()
+                }
             }
-        }    }
+        }
+    }
+
+    private fun syncPaymentToCloud(amount: Int, onDone: () -> Unit) {
+        val vendorId = FirebaseAuth.getInstance().currentUser?.uid
+        if (vendorId.isNullOrBlank()) {
+            onDone()
+            return
+        }
+
+        val db = FirebaseFirestore.getInstance()
+        db.collection("transactions")
+            .whereEqualTo("vendorId", vendorId)
+            .whereEqualTo("customerName", customerName)
+            .limit(1)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val first = snapshot.documents.firstOrNull()
+                val customerId = first?.getString("customerId").orEmpty()
+                val vendorName = first?.getString("vendorName").orEmpty()
+
+                val paymentDoc = hashMapOf(
+                    "vendorId" to vendorId,
+                    "vendorName" to vendorName,
+                    "customerId" to customerId,
+                    "customerName" to customerName,
+                    "amount" to amount,
+                    "createdAt" to FieldValue.serverTimestamp()
+                )
+
+                db.collection("payments")
+                    .add(paymentDoc)
+                    .addOnSuccessListener {
+                        onDone()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Payment saved locally", Toast.LENGTH_SHORT).show()
+                        onDone()
+                    }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Payment saved locally", Toast.LENGTH_SHORT).show()
+                onDone()
+            }
+    }
 }
