@@ -19,7 +19,6 @@ import com.akeel.aitbaar.ui.customer.transactions.RejectReasonBottomSheet
 import kotlin.math.abs
 
 class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
-
     private val viewModel: CustomerDataViewModel by activityViewModels()
     private val adapter = CustomerRecentTransactionAdapter()
     private var allTransactions = emptyList<Transaction>()
@@ -28,6 +27,7 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
 
         val rvConfirm = view.findViewById<RecyclerView>(R.id.rvConfirmTransactions)
         val tabPending = view.findViewById<TextView>(R.id.tabPending)
@@ -61,6 +61,7 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
             }
         }
 
+
         fun selectTab(index: Int, animate: Boolean = true) {
             selectedIndex = index
             val shouldAnimateIndicator = animate && isIndicatorInitialized
@@ -93,7 +94,6 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
                     allTransactions.filter { it.status == Status.REJECTED }
                 }
             }
-
             adapter.submitList(filtered)
             tvEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
             isIndicatorInitialized = true
@@ -125,7 +125,6 @@ class ConfirmFragment : Fragment(R.layout.fragment_confirm2) {
                 }
             }
         )
-
         rvConfirm.setOnTouchListener { _, event ->
             gestureDetector.onTouchEvent(event)
             false

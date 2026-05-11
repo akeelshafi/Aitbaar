@@ -58,25 +58,33 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
         btnSave.setOnClickListener {
             val customerName = selectedCustomerName ?: tvCustomer.text.toString().trim()
-            val customerUid = if (isEditMode) (currentCustomerUid ?: selectedCustomerUid) else selectedCustomerUid
-            val customerPhone = if (isEditMode) (currentCustomerPhone ?: selectedCustomerPhone) else selectedCustomerPhone
+            val customerUid =
+                if (isEditMode) (currentCustomerUid ?: selectedCustomerUid) else selectedCustomerUid
+            val customerPhone = if (isEditMode) (currentCustomerPhone
+                ?: selectedCustomerPhone) else selectedCustomerPhone
             val item = etItem.text.toString().trim()
             val amountText = etAmount.text.toString().trim()
             val date = tvDate.text.toString()
 
-            if (customerName.isBlank() || customerName.equals("Select Customer", ignoreCase = true)) {
+            if (customerName.isBlank() || customerName.equals(
+                    "Select Customer",
+                    ignoreCase = true
+                )
+            ) {
                 tvCustomer.error = "Select customer"
                 return@setOnClickListener
             }
 
             // ADD mode requires explicit customer selection
             if (!isEditMode && customerUid.isNullOrBlank()) {
-                Toast.makeText(requireContext(), "Select an Aitbaar customer", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Select an Aitbaar customer", Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnClickListener
             }
 
             if (!isEditMode && customerPhone.isNullOrBlank()) {
-                Toast.makeText(requireContext(), "Customer phone not found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Customer phone not found", Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnClickListener
             }
 
@@ -98,7 +106,8 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
                 amount = amount,
                 date = date,
                 // edit/correct always sends back for customer re-verification
-                status = if (isEditMode) Status.PENDING else (currentTransaction?.status ?: Status.PENDING)
+                status = if (isEditMode) Status.PENDING else (currentTransaction?.status
+                    ?: Status.PENDING)
             )
 
             viewLifecycleOwner.lifecycleScope.launch {
@@ -121,7 +130,8 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
                     findNavController().popBackStack()
                 } catch (e: Exception) {
-                    Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG)
+                        .show()
                 }
             }
         }
@@ -160,13 +170,16 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
 
         view.findViewById<View>(R.id.BtnSelectCustomer).setOnClickListener {
             if (isEditMode) {
-                Toast.makeText(requireContext(), "Customer cannot be changed in edit mode", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Customer cannot be changed in edit mode",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
             findNavController().navigate(R.id.action_addTransactionFragment_to_selectCustomerFragment)
         }
     }
-
     private fun loadCloudMetaForEdit(txId: String) {
         db.collection("transactions")
             .document(txId)
@@ -228,7 +241,8 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         val vendorUid = auth.currentUser?.uid
             ?: throw IllegalStateException("Vendor not logged in")
 
-        val vendorName = if (currentVendorName.isNotBlank()) currentVendorName else fetchVendorName(vendorUid)
+        val vendorName =
+            if (currentVendorName.isNotBlank()) currentVendorName else fetchVendorName(vendorUid)
 
         val updates = hashMapOf<String, Any?>(
             "vendorId" to vendorUid,
