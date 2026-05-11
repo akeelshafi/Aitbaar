@@ -4,6 +4,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
@@ -13,14 +14,24 @@ object CustomerNavHelper {
 
     fun setup(fragment: Fragment, view: View) {
         val navController = fragment.findNavController()
+
+        // Bottom nav should behave like top-level destinations:
+        // - no deep back stack chaining between tabs
+        // - single instance
         val options = NavOptions.Builder()
+            .setPopUpTo(R.id.customerDashboardFragment, false)
             .setLaunchSingleTop(true)
+            .setRestoreState(true)
             .build()
 
-        view.findViewById<View>(R.id.tabHome)?.setOnClickListener {
+        fun goHome() {
             if (navController.currentDestination?.id != R.id.customerDashboardFragment) {
                 navController.navigate(R.id.customerDashboardFragment, null, options)
             }
+        }
+
+        view.findViewById<View>(R.id.tabHome)?.setOnClickListener {
+            goHome()
         }
 
         view.findViewById<View>(R.id.tabCustomers)?.setOnClickListener {
@@ -40,6 +51,28 @@ object CustomerNavHelper {
                 navController.navigate(R.id.customerProfileFragment, null, options)
             }
         }
+
+        // Back behavior:
+        // If user is on any customer bottom-tab screen except Home, back -> Home
+        // If already on Home, back -> normal behavior (exit/app back)
+        fragment.requireActivity().onBackPressedDispatcher.addCallback(
+            fragment.viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    val currentId = navController.currentDestination?.id
+                    if (currentId != R.id.customerDashboardFragment &&
+                        (currentId == R.id.fragmentVendors ||
+                                currentId == R.id.customerConfirmFragment ||
+                                currentId == R.id.customerProfileFragment)
+                    ) {
+                        goHome()
+                    } else {
+                        isEnabled = false
+                        fragment.requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            }
+        )
     }
 
     fun highlight(fragment: Fragment, view: View, selectedTabId: Int) {
