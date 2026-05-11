@@ -43,10 +43,12 @@ class CustomerVendorLedgerFragment : Fragment(R.layout.fragment_customer_vendor_
         val btnMarkPaid = view.findViewById<View?>(R.id.btnMarkPaid)
         val tvTotalAmount = view.findViewById<TextView?>(R.id.tvTotalAmount)
         val tvCustomerName = view.findViewById<TextView?>(R.id.tvCustomerName)
+        val tvEmptyState = view.findViewById<TextView?>(R.id.tvEmptyState)
         val recycler = view.findViewById<RecyclerView?>(R.id.rvLedger)
 
         if (tabAll == null || tabPending == null || tabAccepted == null || tabRejected == null ||
-            tabPaid == null || tabIndicator == null || tvTotalAmount == null || tvCustomerName == null || recycler == null
+            tabPaid == null || tabIndicator == null || tvTotalAmount == null ||
+            tvCustomerName == null || recycler == null || tvEmptyState == null
         ) {
             Toast.makeText(requireContext(), "Ledger UI missing views. Rebuild app once.", Toast.LENGTH_SHORT).show()
             return
@@ -79,6 +81,16 @@ class CustomerVendorLedgerFragment : Fragment(R.layout.fragment_customer_vendor_
             }
         }
 
+        fun emptyTextByTab(index: Int): String {
+            return when (index) {
+                1 -> "No pending transactions"
+                2 -> "No accepted transactions"
+                3 -> "No rejected transactions"
+                4 -> "No paid transactions"
+                else -> "No transactions for this vendor"
+            }
+        }
+
         fun selectTab(index: Int, animate: Boolean = true) {
             selectedIndex = index
             val shouldAnimateIndicator = animate && isIndicatorInitialized
@@ -98,7 +110,10 @@ class CustomerVendorLedgerFragment : Fragment(R.layout.fragment_customer_vendor_
                 4 -> vendorTransactions.filter { it.status == Status.PAID }
                 else -> vendorTransactions
             }
+
             adapter.submitList(sortByDate(filtered))
+            tvEmptyState.text = emptyTextByTab(selectedIndex)
+            tvEmptyState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
             isIndicatorInitialized = true
         }
 
@@ -140,6 +155,7 @@ class CustomerVendorLedgerFragment : Fragment(R.layout.fragment_customer_vendor_
             tvTotalAmount.text = "₹ ${(accepted - paid).coerceAtLeast(0)}"
             selectTab(selectedIndex, animate = false)
         }
+
         viewModel.ensureLoaded()
 
         tabAll.setOnClickListener { selectTab(0) }
