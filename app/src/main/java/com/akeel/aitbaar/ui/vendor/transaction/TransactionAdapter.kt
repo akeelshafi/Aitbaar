@@ -18,6 +18,7 @@ class TransactionAdapter(
     class TransactionViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val name = view.findViewById<TextView>(R.id.tvCustomerName)
         val item = view.findViewById<TextView>(R.id.tvItem)
+        val rejectReason = view.findViewById<TextView>(R.id.tvRejectReason)
         val amount = view.findViewById<TextView>(R.id.tvAmount)
         val date = view.findViewById<TextView>(R.id.tvDate)
         val status = view.findViewById<TextView>(R.id.tvStatus)
@@ -36,7 +37,20 @@ class TransactionAdapter(
         val transaction = list[position]
 
         holder.name.text = transaction.customerName
-        holder.item.text = transaction.item
+
+        val splitToken = "\nReason:"
+        val hasReason = transaction.status == Status.REJECTED && transaction.item.contains(splitToken)
+        if (hasReason) {
+            val parts = transaction.item.split(splitToken, limit = 2)
+            holder.item.text = parts[0].trim()
+            holder.rejectReason.text = "Reason: ${parts.getOrNull(1)?.trim().orEmpty()}"
+            holder.rejectReason.visibility = View.VISIBLE
+        } else {
+            holder.item.text = transaction.item
+            holder.rejectReason.text = ""
+            holder.rejectReason.visibility = View.GONE
+        }
+
         holder.amount.text = "₹${transaction.amount}"
         holder.date.text = transaction.date
 

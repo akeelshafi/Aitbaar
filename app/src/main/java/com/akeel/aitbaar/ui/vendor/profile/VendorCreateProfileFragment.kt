@@ -3,13 +3,20 @@ package com.akeel.aitbaar.ui.vendor.profile
 import android.Manifest
 import android.app.AlertDialog
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
@@ -21,6 +28,7 @@ import com.akeel.aitbaar.utils.ProfileCache
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 
@@ -31,24 +39,27 @@ class VendorCreateProfileFragment : Fragment() {
 
     private lateinit var imgVendorProfile: ImageView
     private var savedImagePath: String? = null
+    private var selectedBitmap: Bitmap? = null
+    private var existingBase64: String = ""
     private var isEditMode = false
 
-    // ✅ Gallery
+    // Gallery
     private val pickImageFromGallery =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
-                val bitmap =
-                    MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, it)
+                val bitmap = MediaStore.Images.Media.getBitmap(requireActivity().contentResolver, it)
                 imgVendorProfile.setImageBitmap(bitmap)
+                selectedBitmap = bitmap
                 savedImagePath = saveBitmapToInternalStorage(bitmap)
             }
         }
 
-    // ✅ Camera
+    // Camera
     private val takePhotoFromCamera =
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
             bitmap?.let {
                 imgVendorProfile.setImageBitmap(it)
+                selectedBitmap = it
                 savedImagePath = saveBitmapToInternalStorage(it)
             }
         }
@@ -63,13 +74,12 @@ class VendorCreateProfileFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         val view = inflater.inflate(R.layout.fragment_vendor_create_profile, container, false)
 
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // 🔹 Views
+        // Views
         imgVendorProfile = view.findViewById(R.id.imgProfile)
 
         val etOwnerName = view.findViewById<EditText>(R.id.etOwnerName)
@@ -88,12 +98,20 @@ class VendorCreateProfileFragment : Fragment() {
 
         val btnVendorCamera = view.findViewById<CardView>(R.id.btnVendorCamera)
 
-        // 🔹 Dropdowns
-        val categories = listOf("Kirana","Medical","Apparel","Electronics","Mobile","Financial Services","Insurance","Digital","Agriculture","Education","Computer","Tour & Travel","Other")
-        val types = listOf("Retailer / Shop","Wholesaler","Distributor","Services","Manufacturer","Other")
+        // Dropdowns
+        val categories = listOf(
+            "Kirana", "Medical", "Apparel", "Electronics", "Mobile",
+            "Financial Services", "Insurance", "Digital", "Agriculture",
+            "Education", "Computer", "Tour & Travel", "Other"
+        )
+        val types = listOf("Retailer / Shop", "Wholesaler", "Distributor", "Services", "Manufacturer", "Other")
 
-        actBusinessCategory.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, categories))
-        actBusinessType.setAdapter(ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types))
+        actBusinessCategory.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, categories)
+        )
+        actBusinessType.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
+        )
 
         actBusinessCategory.setOnClickListener { actBusinessCategory.showDropDown() }
         actBusinessType.setOnClickListener { actBusinessType.showDropDown() }
@@ -103,12 +121,10 @@ class VendorCreateProfileFragment : Fragment() {
 
         etVendorPhone.setText(user.phoneNumber ?: "")
 
-        // 🔥 EDIT MODE DETECTION
+        // EDIT MODE DETECTION
         db.collection("vendors").document(uid).get()
             .addOnSuccessListener { doc ->
-
                 if (doc.exists()) {
-
                     isEditMode = true
 
                     etOwnerName.setText(doc.getString("name"))
@@ -120,26 +136,33 @@ class VendorCreateProfileFragment : Fragment() {
                     actBusinessCategory.setText(doc.getString("businessCategory"), false)
                     actBusinessType.setText(doc.getString("businessType"), false)
 
-                    val imagePath = doc.getString("profileImagePath")
+                    val imagePath = doc.getString("profileImagePath").orEmpty()
+                    existingBase64 = doc.getString("profileImageBase64").orEmpty()
                     savedImagePath = imagePath
 
-                    if (!imagePath.isNullOrEmpty()) {
-                        val file = File(imagePath)
-                        if (file.exists()) {
-                            imgVendorProfile.setImageURI(Uri.fromFile(file))
+                    when {
+                        existingBase64.isNotBlank() -> {
+                            decodeBase64ToBitmap(existingBase64)?.let {
+                                imgVendorProfile.setImageBitmap(it)
+                            }
+                        }
+                        imagePath.isNotBlank() -> {
+                            val file = File(imagePath)
+                            if (file.exists()) {
+                                imgVendorProfile.setImageURI(Uri.fromFile(file))
+                            }
                         }
                     }
 
-                    // 🔥 CHANGE UI
                     title.text = "Update Profile"
                     btnText.text = "Update Profile"
                 }
             }
 
-        // 🔹 Image picker
+        // Image picker
         btnVendorCamera.setOnClickListener { showImagePickerDialog() }
 
-        // 🔥 SAVE / UPDATE
+        // SAVE / UPDATE
         btnCreateVendorProfile.setOnClickListener {
             val ownerName = etOwnerName.text.toString().trim()
             val businessEmail = etBusinessEmail.text.toString().trim()
@@ -175,19 +198,19 @@ class VendorCreateProfileFragment : Fragment() {
             } else {
                 actBusinessType.error = null
             }
-            if (businessEmail.isNotEmpty() && !android.util.Patterns.EMAIL_ADDRESS.matcher(businessEmail).matches()) {
+            if (businessEmail.isNotEmpty() &&
+                !android.util.Patterns.EMAIL_ADDRESS.matcher(businessEmail).matches()
+            ) {
                 etBusinessEmail.error = "Enter a valid email"
                 hasError = true
             }
 
             if (hasError) {
-                Toast.makeText(
-                    requireContext(),
-                    "Please fill all required fields",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Please fill all required fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
+            val profileImageBase64 = selectedBitmap?.let { bitmapToBase64(it) } ?: existingBase64
 
             val vendorMap = hashMapOf<String, Any>(
                 "uid" to uid,
@@ -204,6 +227,7 @@ class VendorCreateProfileFragment : Fragment() {
                 "businessType" to businessType,
 
                 "profileImagePath" to (savedImagePath ?: ""),
+                "profileImageBase64" to profileImageBase64,
 
                 "updatedAt" to FieldValue.serverTimestamp()
             )
@@ -216,18 +240,18 @@ class VendorCreateProfileFragment : Fragment() {
                 .document(uid)
                 .set(vendorMap)
                 .addOnSuccessListener {
-
                     Toast.makeText(
                         requireContext(),
                         if (isEditMode) "Profile Updated ✅" else "Profile Created ✅",
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    // 🔥 CLEAR CACHE
+                    // Clear cache
                     ProfileCache.name = null
                     ProfileCache.shop = null
                     ProfileCache.imagePath = null
-                    DashboardCache.vendorName =null
+                    ProfileCache.imageBase64 = null
+                    DashboardCache.vendorName = null
 
                     findNavController().navigate(
                         R.id.vendorDashboardFragment,
@@ -236,6 +260,9 @@ class VendorCreateProfileFragment : Fragment() {
                             .setPopUpTo(R.id.nav_graph, true)
                             .build()
                     )
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG).show()
                 }
         }
 
@@ -265,4 +292,28 @@ class VendorCreateProfileFragment : Fragment() {
 
         return file.absolutePath
     }
+
+    private fun bitmapToBase64(bitmap: Bitmap): String {
+        val maxSide = 512
+        val scaled = if (bitmap.width > maxSide || bitmap.height > maxSide) {
+            val ratio = bitmap.width.toFloat() / bitmap.height.toFloat()
+            val (newW, newH) = if (ratio > 1f) {
+                maxSide to (maxSide / ratio).toInt().coerceAtLeast(1)
+            } else {
+                (maxSide * ratio).toInt().coerceAtLeast(1) to maxSide
+            }
+            Bitmap.createScaledBitmap(bitmap, newW, newH, true)
+        } else {
+            bitmap
+        }
+
+        val output = ByteArrayOutputStream()
+        scaled.compress(Bitmap.CompressFormat.JPEG, 45, output)
+        return Base64.encodeToString(output.toByteArray(), Base64.NO_WRAP)
+    }
+
+    private fun decodeBase64ToBitmap(base64: String) = runCatching {
+        val bytes = Base64.decode(base64, Base64.DEFAULT)
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }.getOrNull()
 }

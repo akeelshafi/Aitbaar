@@ -11,7 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Back Arrow -->
         <ImageView
             android:id="@+id/btnBack"
             android:layout_width="24dp"
@@ -23,7 +22,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="#3D7BFF" />
 
-        <!-- Title -->
         <TextView
             android:id="@+id/tvCustomerName"
             android:layout_width="wrap_content"
@@ -37,7 +35,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@id/btnBack" />
 
-        <!-- Total Amount Chip -->
         <TextView
             android:id="@+id/tvTotalAmount"
             android:layout_width="wrap_content"
@@ -54,7 +51,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvCustomerName" />
 
-        <!-- Tabs -->
         <LinearLayout
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
@@ -115,7 +111,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Divider -->
         <View
             android:id="@+id/tabDivider"
             android:layout_width="match_parent"
@@ -123,7 +118,6 @@
             android:background="#E3E7ED"
             app:layout_constraintTop_toBottomOf="@id/tabLayout" />
 
-        <!-- RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvLedger"
             android:layout_width="0dp"
@@ -135,7 +129,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tabDivider" />
 
-        <!-- Mark as Paid Button -->
+        <TextView
+            android:id="@+id/tvEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No transactions for this customer"
+            android:textColor="#7A8BA6"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/btnMarkPaid"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabDivider" />
+
         <TextView
             android:id="@+id/btnMarkPaid"
             android:layout_width="200dp"
@@ -156,5 +163,3 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>
-
-

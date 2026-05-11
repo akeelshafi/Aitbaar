@@ -195,9 +195,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/recentTitleRow" />
 
+        <!-- Empty State -->
+        <TextView
+            android:id="@+id/tvEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No recent transactions"
+            android:textColor="#7A8BA6"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/vendorBottomNav"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/recentTitleRow" />
+
 
         <!-- ================= BOTTOM NAV ================= -->
-
         <androidx.cardview.widget.CardView
             android:id="@+id/vendorBottomNav"
             android:layout_width="0dp"
@@ -217,7 +231,6 @@
                 android:orientation="horizontal"
                 android:weightSum="4">
 
-                <!-- Home -->
                 <LinearLayout
                     android:id="@+id/tabHome"
                     android:layout_width="0dp"
@@ -241,7 +254,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Customers -->
                 <LinearLayout
                     android:id="@+id/tabCustomers"
                     android:layout_width="0dp"
@@ -264,7 +276,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Confirm -->
                 <LinearLayout
                     android:id="@+id/tabConfirm"
                     android:layout_width="0dp"
@@ -287,7 +298,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Profile -->
                 <LinearLayout
                     android:id="@+id/tabProfile"
                     android:layout_width="0dp"
@@ -313,8 +323,5 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-
     </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
-
-

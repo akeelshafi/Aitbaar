@@ -4,15 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.customer.confirm.ConfirmFragment"
-    android:background="@drawable/aitbaar_background">
+    android:background="@drawable/aitbaar_background"
+    tools:context=".ui.customer.confirm.ConfirmFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- ================= HEADER ================= -->
-
+        <!-- Header -->
         <LinearLayout
             android:id="@+id/topHeader"
             android:layout_width="wrap_content"
@@ -51,9 +50,7 @@
             </LinearLayout>
         </LinearLayout>
 
-
-        <!-- ================= TITLE ================= -->
-
+        <!-- Title -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -66,9 +63,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/topHeader" />
 
-
-        <!-- ================= TABS ================= -->
-
+        <!-- Tabs -->
         <LinearLayout
             android:id="@+id/tabContainer"
             android:layout_width="0dp"
@@ -114,20 +109,17 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Selected Tab Indicator -->
+        <!-- Tab Indicator -->
         <View
             android:id="@+id/tabIndicator"
             android:layout_width="80dp"
             android:layout_height="3dp"
             android:layout_marginTop="8dp"
             android:background="#3D7BFF"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.100"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tabContainer" />
 
-        <!-- ================= TRANSACTION LIST ================= -->
-
+        <!-- List -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvConfirmTransactions"
             android:layout_width="0dp"
@@ -139,8 +131,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tabIndicator" />
 
+        <!-- Empty State -->
+        <TextView
+            android:id="@+id/tvEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No pending transactions"
+            android:textColor="#7A8BA6"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/customerBottomNav"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabIndicator" />
 
-        <!-- ================= BOTTOM NAV ================= -->
+        <!-- Bottom Nav -->
         <androidx.cardview.widget.CardView
             android:id="@+id/customerBottomNav"
             android:layout_width="0dp"
@@ -160,7 +166,6 @@
                 android:orientation="horizontal"
                 android:weightSum="4">
 
-                <!-- Home -->
                 <LinearLayout
                     android:id="@+id/tabHome"
                     android:layout_width="0dp"
@@ -184,7 +189,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Vendors -->
                 <LinearLayout
                     android:id="@+id/tabCustomers"
                     android:layout_width="0dp"
@@ -207,7 +211,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Confirm -->
                 <LinearLayout
                     android:id="@+id/tabConfirm"
                     android:layout_width="0dp"
@@ -230,7 +233,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- Profile -->
                 <LinearLayout
                     android:id="@+id/tabProfile"
                     android:layout_width="0dp"
@@ -257,5 +259,4 @@
         </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </FrameLayout>

@@ -3,6 +3,7 @@ package com.akeel.aitbaar.ui.customer.vendors
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -27,18 +28,19 @@ class FragmentVendors : Fragment(R.layout.fragment_vendors) {
 
         val rvVendors = view.findViewById<RecyclerView>(R.id.rvCustomers)
         val etSearchVendor = view.findViewById<EditText>(R.id.etSearchCustomer)
+        val tvEmptyState = view.findViewById<TextView>(R.id.tvEmptyState)
 
         adapter = CustomerBalanceAdapter(emptyList()) { vendor ->
-            val action =
-                FragmentVendorsDirections
-                    .actionFragmentVendorsToCustomerVendorLedgerFragment(vendor.name)
+            val action = FragmentVendorsDirections
+                .actionFragmentVendorsToCustomerVendorLedgerFragment(vendor.name)
             findNavController().navigate(action)
         }
+
         rvVendors.layoutManager = LinearLayoutManager(requireContext())
         rvVendors.adapter = adapter
 
         etSearchVendor.doAfterTextChanged { text ->
-            filterVendors(text?.toString().orEmpty())
+            filterVendors(text?.toString().orEmpty(), tvEmptyState)
         }
 
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
@@ -51,7 +53,7 @@ class FragmentVendors : Fragment(R.layout.fragment_vendors) {
                     .distinct()
                     .map { vendorName -> CustomerBalance(vendorName, 0) }
             }
-            filterVendors(etSearchVendor.text?.toString().orEmpty())
+            filterVendors(etSearchVendor.text?.toString().orEmpty(), tvEmptyState)
         }
 
         viewModel.ensureLoaded()
@@ -60,7 +62,7 @@ class FragmentVendors : Fragment(R.layout.fragment_vendors) {
         CustomerNavHelper.highlight(this, view, R.id.tabCustomers)
     }
 
-    private fun filterVendors(query: String) {
+    private fun filterVendors(query: String, tvEmptyState: TextView) {
         val normalizedQuery = query.trim().lowercase(Locale.getDefault())
         val filteredList = if (normalizedQuery.isBlank()) {
             allVendors
@@ -69,6 +71,9 @@ class FragmentVendors : Fragment(R.layout.fragment_vendors) {
                 vendor.name.lowercase(Locale.getDefault()).contains(normalizedQuery)
             }
         }
+
         adapter.submitList(filteredList)
+        tvEmptyState.text = "No vendors yet"
+        tvEmptyState.visibility = if (filteredList.isEmpty()) View.VISIBLE else View.GONE
     }
 }

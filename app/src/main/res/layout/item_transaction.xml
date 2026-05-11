@@ -10,8 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        >
+        android:padding="16dp">
 
         <!-- Name -->
         <TextView
@@ -31,11 +30,11 @@
             android:id="@+id/tvAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="2dp"
             android:text="₹120"
             android:textColor="#2A2F36"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:layout_marginEnd="2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -57,16 +56,31 @@
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:background="@drawable/bg_status_accepted"
             android:paddingHorizontal="6dp"
             android:paddingVertical="2dp"
-            android:layout_marginTop="4dp"
             android:text="ACCEPTED"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvAmount" />
+
+        <!-- Rejection Reason -->
+        <TextView
+            android:id="@+id/tvRejectReason"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Reason: incorrect amount"
+            android:textColor="#D9534F"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@id/tvStatus"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvItem" />
 
         <!-- Divider -->
         <View
@@ -77,7 +91,7 @@
             android:background="#E3E7ED"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tvItem" />
+            app:layout_constraintTop_toBottomOf="@id/tvRejectReason" />
 
         <!-- Date -->
         <TextView
@@ -90,8 +104,6 @@
             android:textSize="13sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/divider" />
-
-
 
         <LinearLayout
             android:id="@+id/actionContainer"

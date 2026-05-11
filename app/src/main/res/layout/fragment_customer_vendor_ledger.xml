@@ -122,13 +122,26 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tabLayout" />
 
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvLedger"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:clipToPadding="false"
             android:padding="12dp"
+            app:layout_constraintBottom_toTopOf="@id/btnMarkPaid"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabIndicator" />
+
+        <TextView
+            android:id="@+id/tvEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No transactions for this vendor"
+            android:textColor="#7A8BA6"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@id/btnMarkPaid"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
