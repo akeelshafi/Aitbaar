@@ -9,6 +9,7 @@ import com.akeel.aitbaar.data.model.Transaction
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -36,38 +37,50 @@ class CustomerDataViewModel : ViewModel() {
     private var allTransactions: List<CustomerTxRecord> = emptyList()
     private val txDocIdByUiId = mutableMapOf<Int, String>()
 
+    // Realtime listeners
+    private var transactionsListener: ListenerRegistration? = null
+    private var paymentsListener: ListenerRegistration? = null
+
+    // Cache realtime streams before merge
+    private var transactionRecords: List<CustomerTxRecord> = emptyList()
+    private var paymentRecords: List<CustomerTxRecord> = emptyList()
+
+    // Profile cache
+    private var customerName: String = "Customer"
+    private var customerPhone: String = ""
+    private var customerProfilePath: String = ""
+    private var customerProfileImageBase64: String = ""
+
     fun ensureLoaded(forceRefresh: Boolean = false) {
         if (hasLoaded && !forceRefresh) return
 
         val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        if (forceRefresh) {
+            transactionsListener?.remove()
+            paymentsListener?.remove()
+            transactionsListener = null
+            paymentsListener = null
+            transactionRecords = emptyList()
+            paymentRecords = emptyList()
+        }
+
         hasLoaded = true
         _uiState.value = _uiState.value?.copy(loading = true)
 
         loadCustomerProfile(uid) { name, phone, profilePath, profileImageBase64 ->
-            loadTransactions(uid) { transactionRecords ->
-                loadPayments(uid) { paymentRecords ->
-                    val records = (transactionRecords + paymentRecords)
-                        .sortedByDescending { it.createdAtMillis }
-
-                    allTransactions = records
-                    txDocIdByUiId.clear()
-                    records.filter { !it.isPayment }.forEach { record ->
-                        txDocIdByUiId[record.uiId] = record.docId
-                    }
-
-                    publishState(
-                        name = name,
-                        phone = phone,
-                        profilePath = profilePath,
-                        profileImageBase64 = profileImageBase64
-                    )
-                }
-            }
+            customerName = name
+            customerPhone = phone
+            customerProfilePath = profilePath
+            customerProfileImageBase64 = profileImageBase64
+            publishMergedState()
         }
+
+        attachRealtimeTransactions(uid)
+        attachRealtimePayments(uid)
     }
 
     fun updateTransactionStatus(uiId: Int, newStatus: Status, reason: String?) {
-        val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
         val docId = txDocIdByUiId[uiId] ?: return
         val current = allTransactions.firstOrNull { it.uiId == uiId } ?: return
         if (current.status != Status.PENDING) return
@@ -76,6 +89,7 @@ class CustomerDataViewModel : ViewModel() {
             "status" to newStatus.name,
             "updatedAt" to FieldValue.serverTimestamp()
         )
+
         when (newStatus) {
             Status.ACCEPTED -> updates["approvedAt"] = FieldValue.serverTimestamp()
             Status.REJECTED -> {
@@ -85,23 +99,21 @@ class CustomerDataViewModel : ViewModel() {
             else -> Unit
         }
 
-        allTransactions = allTransactions.map { tx ->
+        // Optimistic UI
+        transactionRecords = transactionRecords.map { tx ->
             if (tx.uiId == uiId) tx.copy(status = newStatus) else tx
         }
-        _uiState.value?.let {
-            publishState(it.name, it.phone, it.profilePath, it.profileImageBase64)
-        }
+        publishMergedState()
 
         db.collection("transactions")
             .document(docId)
             .update(updates)
             .addOnFailureListener {
-                allTransactions = allTransactions.map { tx ->
+                // rollback
+                transactionRecords = transactionRecords.map { tx ->
                     if (tx.uiId == uiId) tx.copy(status = current.status) else tx
                 }
-                _uiState.value?.let { state ->
-                    publishState(state.name, state.phone, state.profilePath, state.profileImageBase64)
-                }
+                publishMergedState()
             }
     }
 
@@ -124,15 +136,16 @@ class CustomerDataViewModel : ViewModel() {
             }
     }
 
-    private fun loadTransactions(uid: String, onComplete: (List<CustomerTxRecord>) -> Unit) {
-        db.collection("transactions")
+    private fun attachRealtimeTransactions(uid: String) {
+        transactionsListener?.remove()
+        transactionsListener = db.collection("transactions")
             .whereEqualTo("customerId", uid)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                val docs = snapshot.documents
+            .addSnapshotListener { snapshot, _ ->
+                val docs = snapshot?.documents.orEmpty()
                 if (docs.isEmpty()) {
-                    onComplete(emptyList())
-                    return@addOnSuccessListener
+                    transactionRecords = emptyList()
+                    publishMergedState()
+                    return@addSnapshotListener
                 }
 
                 val vendorNameCache = mutableMapOf<String, String>()
@@ -153,12 +166,13 @@ class CustomerDataViewModel : ViewModel() {
                     vendorNameCache.putAll(fetchedNames)
 
                     val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                    val records = docs.map { doc ->
+                    transactionRecords = docs.map { doc ->
                         val vendorId = doc.getString("vendorId").orEmpty()
                         val vendorName = doc.getString("vendorName")
                             .orEmpty()
                             .ifBlank { vendorNameCache[vendorId].orEmpty() }
                             .ifBlank { "Unknown Vendor" }
+
                         val item = doc.getString("item").orEmpty()
                         val amount = (doc.getLong("amount") ?: 0L).toInt()
                         val createdAt = doc.getTimestamp("createdAt")
@@ -183,25 +197,23 @@ class CustomerDataViewModel : ViewModel() {
                         )
                     }.sortedByDescending { it.createdAtMillis }
 
-                    onComplete(records)
+                    publishMergedState()
                 }
-            }
-            .addOnFailureListener {
-                onComplete(emptyList())
             }
     }
 
-    private fun loadPayments(uid: String, onComplete: (List<CustomerTxRecord>) -> Unit) {
-        db.collection("payments")
+    private fun attachRealtimePayments(uid: String) {
+        paymentsListener?.remove()
+        paymentsListener = db.collection("payments")
             .whereEqualTo("customerId", uid)
-            .get()
-            .addOnSuccessListener { snapshot ->
+            .addSnapshotListener { snapshot, _ ->
                 val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                val paymentRecords = snapshot.documents.map { doc ->
+                paymentRecords = snapshot?.documents.orEmpty().map { doc ->
                     val vendorName = doc.getString("vendorName").orEmpty().ifBlank { "Unknown Vendor" }
                     val amount = (doc.getLong("amount") ?: 0L).toInt()
                     val createdAt = doc.getTimestamp("createdAt")
                     val date = createdAt?.toDate()?.let { formatter.format(it) }.orEmpty()
+
                     CustomerTxRecord(
                         uiId = doc.id.hashCode(),
                         docId = doc.id,
@@ -215,11 +227,27 @@ class CustomerDataViewModel : ViewModel() {
                         isPayment = true
                     )
                 }
-                onComplete(paymentRecords)
+
+                publishMergedState()
             }
-            .addOnFailureListener {
-                onComplete(emptyList())
-            }
+    }
+
+    private fun publishMergedState() {
+        val merged = (transactionRecords + paymentRecords)
+            .sortedByDescending { it.createdAtMillis }
+
+        allTransactions = merged
+        txDocIdByUiId.clear()
+        merged.filter { !it.isPayment }.forEach { tx ->
+            txDocIdByUiId[tx.uiId] = tx.docId
+        }
+
+        publishState(
+            name = customerName,
+            phone = customerPhone,
+            profilePath = customerProfilePath,
+            profileImageBase64 = customerProfileImageBase64
+        )
     }
 
     private fun resolveVendorNames(
@@ -262,8 +290,10 @@ class CustomerDataViewModel : ViewModel() {
     ) {
         val acceptedTransactions = allTransactions.filter { it.status == Status.ACCEPTED }
         val paidTransactions = allTransactions.filter { it.isPayment || it.status == Status.PAID }
+
         val totalDue = (acceptedTransactions.sumOf { it.amount } - paidTransactions.sumOf { it.amount })
             .coerceAtLeast(0)
+
         val vendorBalances = allTransactions
             .groupBy { it.vendorName }
             .map { (vendorName, records) ->
@@ -305,6 +335,14 @@ class CustomerDataViewModel : ViewModel() {
             vendorCount = allTransactions.map { it.vendorId }.filter { it.isNotBlank() }.distinct().count(),
             loadedOnce = true
         )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        transactionsListener?.remove()
+        paymentsListener?.remove()
+        transactionsListener = null
+        paymentsListener = null
     }
 }
 

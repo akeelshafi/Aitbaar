@@ -31,6 +31,7 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
         val tvTotalDue = view.findViewById<TextView>(R.id.tvTotalDueAmount)
         val tvDueSubtitle = view.findViewById<TextView>(R.id.tvDueSubtitle)
         val tvViewAll = view.findViewById<TextView>(R.id.tvViewAll)
+        val tvEmptyState = view.findViewById<TextView>(R.id.tvEmptyState)
         val imgUser = view.findViewById<ImageView>(R.id.imgUser)
         val rvRecent = view.findViewById<RecyclerView>(R.id.rvVendors)
         val btnPayNow = view.findViewById<CardView>(R.id.btnPayNow)
@@ -40,7 +41,7 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
         rvRecent.adapter = adapter
 
         btnPayNow.setOnClickListener {
-            Toast.makeText(context,"Payment Feature will be live Soon...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Payment Feature will be live Soon...", Toast.LENGTH_SHORT).show()
         }
 
         adapter.setActionListeners(
@@ -58,9 +59,7 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
 
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             tvWelcome.text = "Welcome, ${state.name}"
-            if (state.phone.isNotBlank()) {
-                tvPhone.text = state.phone
-            }
+            if (state.phone.isNotBlank()) tvPhone.text = state.phone
 
             if (state.profileImageBase64.isNotBlank()) {
                 decodeBase64ToBitmap(state.profileImageBase64)?.let { imgUser.setImageBitmap(it) }
@@ -74,6 +73,9 @@ class CustomerDashboardFragment : Fragment(R.layout.fragment_customer_dashboard)
             tvTotalDue.text = "Rs ${state.totalDue}"
             tvDueSubtitle.text = "You owe ${state.vendorCount} vendors"
             adapter.submitList(state.recentTransactions)
+
+            tvEmptyState.text = "No recent transactions"
+            tvEmptyState.visibility = if (state.recentTransactions.isEmpty()) View.VISIBLE else View.GONE
         }
 
         viewModel.ensureLoaded()
