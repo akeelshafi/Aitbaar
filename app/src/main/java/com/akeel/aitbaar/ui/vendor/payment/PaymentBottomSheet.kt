@@ -11,13 +11,14 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.akeel.aitbaar.R
 import com.akeel.aitbaar.data.repository.TransactionRepository
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class PaymentBottomSheet(
     private val customerName: String,
@@ -34,28 +35,20 @@ class PaymentBottomSheet(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         val btnClose = view.findViewById<ImageView>(R.id.btnClose)
         val etAmount = view.findViewById<EditText>(R.id.etAmount)
         val tvDate = view.findViewById<TextView>(R.id.tvDate)
         val btnConfirm = view.findViewById<TextView>(R.id.btnConfirm)
+
         etAmount.setText(currentBalance.toString())
 
-        // 🔹 Set today’s date automatically
         val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-        val todayDate = dateFormat.format(Date())
-        tvDate.text = todayDate
+        tvDate.text = dateFormat.format(Date())
 
-        // 🔹 Close button
-        btnClose.setOnClickListener {
-            dismiss()
-        }
+        btnClose.setOnClickListener { dismiss() }
 
         btnConfirm.setOnClickListener {
-
-            val amountText = etAmount.text.toString().trim()
-
-            val amount = amountText.toIntOrNull()
+            val amount = etAmount.text.toString().trim().toIntOrNull()
 
             if (amount == null || amount <= 0) {
                 etAmount.error = "Enter valid amount"
@@ -67,14 +60,23 @@ class PaymentBottomSheet(
                 return@setOnClickListener
             }
 
-            // Save payment
             viewLifecycleOwner.lifecycleScope.launch {
+                // Local save
                 TransactionRepository.addPayment(
                     customerName = customerName,
                     amount = amount,
                     date = tvDate.text.toString()
                 )
-                syncPaymentToCloud(amount) {
+
+                // Cloud save
+                syncPaymentToCloud(amount) { success ->
+                    if (!success) {
+                        Toast.makeText(
+                            requireContext(),
+                            "Payment saved locally (cloud sync failed)",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                     onPaymentAdded.invoke()
                     dismiss()
                 }
@@ -82,23 +84,37 @@ class PaymentBottomSheet(
         }
     }
 
-    private fun syncPaymentToCloud(amount: Int, onDone: () -> Unit) {
+    private fun syncPaymentToCloud(amount: Int, onDone: (Boolean) -> Unit) {
         val vendorId = FirebaseAuth.getInstance().currentUser?.uid
         if (vendorId.isNullOrBlank()) {
-            onDone()
+            onDone(false)
             return
         }
 
         val db = FirebaseFirestore.getInstance()
+
         db.collection("transactions")
             .whereEqualTo("vendorId", vendorId)
             .whereEqualTo("customerName", customerName)
-            .limit(1)
             .get()
             .addOnSuccessListener { snapshot ->
-                val first = snapshot.documents.firstOrNull()
-                val customerId = first?.getString("customerId").orEmpty()
-                val vendorName = first?.getString("vendorName").orEmpty()
+                // find latest transaction in app code (no orderBy => no composite index need)
+                val latestTx = snapshot.documents.maxByOrNull {
+                    it.getTimestamp("createdAt")?.toDate()?.time ?: 0L
+                }
+
+                val customerId = latestTx?.getString("customerId").orEmpty()
+                val vendorName = latestTx?.getString("vendorName").orEmpty()
+
+                if (customerId.isBlank()) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Cloud sync failed: customerId missing in transaction",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    onDone(false)
+                    return@addOnSuccessListener
+                }
 
                 val paymentDoc = hashMapOf(
                     "vendorId" to vendorId,
@@ -111,17 +127,23 @@ class PaymentBottomSheet(
 
                 db.collection("payments")
                     .add(paymentDoc)
-                    .addOnSuccessListener {
-                        onDone()
-                    }
-                    .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Payment saved locally", Toast.LENGTH_SHORT).show()
-                        onDone()
+                    .addOnSuccessListener { onDone(true) }
+                    .addOnFailureListener { e ->
+                        Toast.makeText(
+                            requireContext(),
+                            "Payment cloud write failed: ${e.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        onDone(false)
                     }
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Payment saved locally", Toast.LENGTH_SHORT).show()
-                onDone()
+            .addOnFailureListener { e ->
+                Toast.makeText(
+                    requireContext(),
+                    "Transaction lookup failed: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+                onDone(false)
             }
     }
 }

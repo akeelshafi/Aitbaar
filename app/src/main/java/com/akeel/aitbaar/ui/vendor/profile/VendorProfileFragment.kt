@@ -11,19 +11,19 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.akeel.aitbaar.R
+import com.akeel.aitbaar.ui.vendor.VendorDataViewModel
 import com.akeel.aitbaar.ui.vendor.VendorNavHelper
-import com.akeel.aitbaar.utils.ProfileCache
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import java.io.File
 
 class VendorProfileFragment : Fragment(R.layout.fragment_vendor_profile) {
 
+    private val viewModel: VendorDataViewModel by activityViewModels()
     private lateinit var auth: FirebaseAuth
-    private lateinit var db: FirebaseFirestore
 
     private lateinit var tvVendorName: TextView
     private lateinit var tvShopName: TextView
@@ -33,30 +33,10 @@ class VendorProfileFragment : Fragment(R.layout.fragment_vendor_profile) {
         super.onViewCreated(view, savedInstanceState)
 
         auth = FirebaseAuth.getInstance()
-        db = FirebaseFirestore.getInstance()
 
         tvVendorName = view.findViewById(R.id.tvVendorName)
         tvShopName = view.findViewById(R.id.tvShopName)
         imgProfile = view.findViewById(R.id.imgProfile)
-
-        ProfileCache.name?.let {
-            tvVendorName.text = it
-            tvShopName.text = ProfileCache.shop
-            val base64 = ProfileCache.imageBase64.orEmpty()
-            val path = ProfileCache.imagePath.orEmpty()
-
-            when {
-                base64.isNotBlank() -> decodeBase64ToBitmap(base64)?.let { bmp ->
-                    imgProfile.setImageBitmap(bmp)
-                }
-                path.isNotBlank() -> {
-                    val file = File(path)
-                    if (file.exists()) imgProfile.setImageURI(Uri.fromFile(file))
-                }
-            }
-        }
-
-        if (ProfileCache.name == null) loadProfileData()
 
         VendorNavHelper.setup(this, view)
         VendorNavHelper.highlight(this, view, R.id.iconProfile)
@@ -66,6 +46,10 @@ class VendorProfileFragment : Fragment(R.layout.fragment_vendor_profile) {
 
         view.findViewById<View>(R.id.helpSupportCard).setOnClickListener {
             Toast.makeText(requireContext(), "Help & Support coming soon", Toast.LENGTH_SHORT).show()
+        }
+
+        view.findViewById<View>(R.id.inviteCustomerCard).setOnClickListener {
+            findNavController().navigate(R.id.action_vendorProfileFragment_to_inviteCustomerFragment)
         }
 
         view.findViewById<Button>(R.id.btnEditProfile).setOnClickListener {
@@ -92,45 +76,39 @@ class VendorProfileFragment : Fragment(R.layout.fragment_vendor_profile) {
                 }
                 .show()
         }
-    }
 
-    private fun loadProfileData() {
-        val uid = auth.currentUser?.uid ?: return
+        // Observe shared vendor state
+        viewModel.uiState.observe(viewLifecycleOwner) { state ->
+            tvVendorName.text = state.vendorName
+            tvShopName.text = state.shopName
 
-        db.collection("vendors")
-            .document(uid)
-            .get()
-            .addOnSuccessListener { document ->
-                if (!document.exists()) return@addOnSuccessListener
-
-                val name = document.getString("name").orEmpty().ifBlank { "No Name" }
-                val shop = document.getString("shopName").orEmpty().ifBlank { "No Shop" }
-                val imagePath = document.getString("profileImagePath").orEmpty()
-                val imageBase64 = document.getString("profileImageBase64").orEmpty()
-
-                tvVendorName.text = name
-                tvShopName.text = shop
-
-                when {
-                    imageBase64.isNotBlank() -> {
-                        decodeBase64ToBitmap(imageBase64)?.let { imgProfile.setImageBitmap(it) }
-                            ?: imgProfile.setImageResource(R.drawable.user)
-                    }
-                    imagePath.isNotBlank() -> {
-                        val file = File(imagePath)
-                        if (file.exists()) imgProfile.setImageURI(Uri.fromFile(file))
-                        else imgProfile.setImageResource(R.drawable.user)
-                    }
-                    else -> imgProfile.setImageResource(R.drawable.user)
+            when {
+                state.profileImageBase64.isNotBlank() -> {
+                    decodeBase64ToBitmap(state.profileImageBase64)?.let { bmp ->
+                        imgProfile.setImageBitmap(bmp)
+                    } ?: imgProfile.setImageResource(R.drawable.user)
                 }
-
-                ProfileCache.name = name
-                ProfileCache.shop = shop
-                ProfileCache.imagePath = imagePath
-                ProfileCache.imageBase64 = imageBase64
+                state.profileImagePath.isNotBlank() -> {
+                    val file = File(state.profileImagePath)
+                    if (file.exists()) imgProfile.setImageURI(Uri.fromFile(file))
+                    else imgProfile.setImageResource(R.drawable.user)
+                }
+                else -> imgProfile.setImageResource(R.drawable.user)
             }
-            .addOnFailureListener {
-                Toast.makeText(requireContext(), "Failed to load profile", Toast.LENGTH_SHORT).show()
+        }
+
+        // Initial load once for vendor module
+        viewModel.ensureLoaded()
+
+        // Refresh ONLY when edit profile returns success flag
+        val backStackEntry = findNavController().currentBackStackEntry
+        backStackEntry?.savedStateHandle
+            ?.getLiveData<Boolean>("profile_updated")
+            ?.observe(viewLifecycleOwner) { updated ->
+                if (updated == true) {
+                    viewModel.ensureLoaded(forceRefresh = true)
+                    backStackEntry.savedStateHandle["profile_updated"] = false
+                }
             }
     }
 

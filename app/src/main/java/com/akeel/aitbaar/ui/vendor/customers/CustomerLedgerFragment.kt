@@ -117,7 +117,6 @@ class CustomerLedgerFragment : Fragment(R.layout.fragment_customer_ledger) {
         viewModel.uiState.observe(viewLifecycleOwner) { state ->
             allTransactions = state.allTransactions.filter { it.customerName == customerName }
 
-            // total paid from balance model
             val customerBalance = state.customerBalances.firstOrNull { it.name == customerName }
             val acceptedTotal = allTransactions.filter { it.status == Status.ACCEPTED }.sumOf { it.amount }
             val due = customerBalance?.balance ?: acceptedTotal
@@ -152,8 +151,8 @@ class CustomerLedgerFragment : Fragment(R.layout.fragment_customer_ledger) {
                 emptyText = "No rejected transactions"
             }
             4 -> {
-                // Paid tab from accepted-paid summary, keep list empty when no paid events available
-                displayList = emptyList()
+                // Show real payment entries from firestore payments (mapped as Status.PAID)
+                displayList = allTransactions.filter { it.status == Status.PAID }
                 emptyText = "No paid transactions"
             }
             else -> {

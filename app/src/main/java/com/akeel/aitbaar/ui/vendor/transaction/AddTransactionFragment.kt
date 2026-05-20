@@ -3,6 +3,7 @@ package com.akeel.aitbaar.ui.vendor.transaction
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -48,12 +49,17 @@ class AddTransactionFragment : Fragment(R.layout.fragment_add_transaction) {
         val btnSave = view.findViewById<View>(R.id.btnSend)
         val tvTitle = view.findViewById<TextView>(R.id.tvTitleTransaction)
         val btnText = view.findViewById<TextView>(R.id.tvBtnTextTransaction)
+        val btnBack =  view.findViewById<ImageView>(R.id.btnBack)
 
         transactionId = arguments?.getString("transactionId")
         if (!transactionId.isNullOrEmpty()) {
             isEditMode = true
             loadTransactionData(tvCustomer, etItem, etAmount, tvDate, tvTitle, btnText)
             loadCloudMetaForEdit(transactionId!!)
+        }
+
+        btnBack.setOnClickListener {
+            findNavController().popBackStack()
         }
 
         btnSave.setOnClickListener {

@@ -15,6 +15,9 @@ import java.util.Locale
 data class VendorUiState(
     val loading: Boolean = true,
     val vendorName: String = "Vendor",
+    val shopName: String = "Aitbaar Business",
+    val profileImagePath: String = "",
+    val profileImageBase64: String = "",
     val recentTransactions: List<Transaction> = emptyList(),
     val allTransactions: List<Transaction> = emptyList(),
     val customerBalances: List<CustomerBalance> = emptyList(),
@@ -34,7 +37,12 @@ class VendorDataViewModel : ViewModel() {
     private var paymentsListener: ListenerRegistration? = null
 
     private var vendorName: String = "Vendor"
+    private var shopName: String = "Aitbaar Business"
+    private var profileImagePath: String = ""
+    private var profileImageBase64: String = ""
+
     private var txList: List<Transaction> = emptyList()
+    private var paymentTxList: List<Transaction> = emptyList()
     private var paymentsByCustomer: Map<String, Int> = emptyMap()
 
     fun ensureLoaded(forceRefresh: Boolean = false) {
@@ -45,19 +53,27 @@ class VendorDataViewModel : ViewModel() {
             txListener?.remove()
             paymentsListener?.remove()
             txList = emptyList()
+            paymentTxList = emptyList()
             paymentsByCustomer = emptyMap()
         }
 
         hasLoaded = true
         _uiState.value = _uiState.value?.copy(loading = true)
 
+        // Load profile once
         db.collection("vendors").document(uid).get()
             .addOnSuccessListener { doc ->
-                vendorName = doc.getString("shopName").orEmpty().ifBlank { "Vendor" }
+                vendorName = doc.getString("name").orEmpty().ifBlank { "Vendor" }
+                shopName = doc.getString("shopName").orEmpty().ifBlank { "Aitbaar Business" }
+                profileImagePath = doc.getString("profileImagePath").orEmpty()
+                profileImageBase64 = doc.getString("profileImageBase64").orEmpty()
                 publish()
             }
             .addOnFailureListener {
                 vendorName = "Vendor"
+                shopName = "Aitbaar Business"
+                profileImagePath = ""
+                profileImageBase64 = ""
                 publish()
             }
 
@@ -97,9 +113,27 @@ class VendorDataViewModel : ViewModel() {
         paymentsListener = db.collection("payments")
             .whereEqualTo("vendorId", uid)
             .addSnapshotListener { snapshot, _ ->
-                paymentsByCustomer = snapshot?.documents.orEmpty()
+                val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                val docs = snapshot?.documents.orEmpty()
+
+                paymentsByCustomer = docs
                     .groupBy { it.getString("customerName").orEmpty() }
-                    .mapValues { (_, docs) -> docs.sumOf { (it.getLong("amount") ?: 0L).toInt() } }
+                    .mapValues { (_, paymentDocs) ->
+                        paymentDocs.sumOf { (it.getLong("amount") ?: 0L).toInt() }
+                    }
+
+                paymentTxList = docs.map { doc ->
+                    val createdAt = doc.getTimestamp("createdAt")
+                    Transaction(
+                        id = doc.id.hashCode(),
+                        customerName = doc.getString("customerName").orEmpty(),
+                        item = "Payment Received",
+                        amount = (doc.getLong("amount") ?: 0L).toInt(),
+                        date = createdAt?.toDate()?.let { formatter.format(it) }.orEmpty(),
+                        status = Status.PAID
+                    )
+                }.sortedByDescending { it.id }
+
                 publish()
             }
     }
@@ -110,7 +144,6 @@ class VendorDataViewModel : ViewModel() {
         val acceptedCustomerCount = accepted.map { it.customerName }.distinct().count()
 
         val allCustomerNames = txList.map { it.customerName }.filter { it.isNotBlank() }.distinct()
-
         val balances = allCustomerNames.map { name ->
             val acceptedAmount = accepted.filter { it.customerName == name }.sumOf { it.amount }
             val paidAmount = paymentsByCustomer[name] ?: 0
@@ -120,11 +153,16 @@ class VendorDataViewModel : ViewModel() {
             )
         }.sortedBy { it.name.lowercase(Locale.getDefault()) }
 
+        val mergedTransactions = (txList + paymentTxList).sortedByDescending { it.id }
+
         _uiState.value = VendorUiState(
             loading = false,
             vendorName = vendorName,
-            recentTransactions = txList.take(4),
-            allTransactions = txList,
+            shopName = shopName,
+            profileImagePath = profileImagePath,
+            profileImageBase64 = profileImageBase64,
+            recentTransactions = mergedTransactions.take(4),
+            allTransactions = mergedTransactions,
             customerBalances = balances,
             totalAcceptedAmount = totalAccepted,
             acceptedCustomerCount = acceptedCustomerCount,

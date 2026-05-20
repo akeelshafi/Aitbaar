@@ -198,6 +198,10 @@
         <action
             android:id="@+id/action_vendorProfileFragment_to_chooseApp"
             app:destination="@id/chooseApp" />
+
+        <action
+            android:id="@+id/action_vendorProfileFragment_to_inviteCustomerFragment"
+            app:destination="@id/inviteCustomerFragment" />
     </fragment>
     <fragment
         android:id="@+id/customerLedgerFragment"
@@ -231,6 +235,14 @@
         android:name="com.akeel.aitbaar.ui.customer.profile.CustomerProfileFragment"
         android:label="fragment_customer_profile"
         tools:layout="@layout/fragment_customer_profile" />
+
+    <fragment
+        android:id="@+id/inviteCustomerFragment"
+        android:name="com.akeel.aitbaar.ui.vendor.profile.InviteCustomerFragment"
+        android:label="fragment_invite_customer"
+        tools:layout="@layout/fragment_invite_customer" >
+
+    </fragment>
 
 
 

@@ -23,8 +23,6 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.akeel.aitbaar.R
-import com.akeel.aitbaar.utils.DashboardCache
-import com.akeel.aitbaar.utils.ProfileCache
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
@@ -43,7 +41,6 @@ class VendorCreateProfileFragment : Fragment() {
     private var existingBase64: String = ""
     private var isEditMode = false
 
-    // Gallery
     private val pickImageFromGallery =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             uri?.let {
@@ -54,7 +51,6 @@ class VendorCreateProfileFragment : Fragment() {
             }
         }
 
-    // Camera
     private val takePhotoFromCamera =
         registerForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
             bitmap?.let {
@@ -79,7 +75,6 @@ class VendorCreateProfileFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         db = FirebaseFirestore.getInstance()
 
-        // Views
         imgVendorProfile = view.findViewById(R.id.imgProfile)
 
         val etOwnerName = view.findViewById<EditText>(R.id.etOwnerName)
@@ -98,7 +93,6 @@ class VendorCreateProfileFragment : Fragment() {
 
         val btnVendorCamera = view.findViewById<CardView>(R.id.btnVendorCamera)
 
-        // Dropdowns
         val categories = listOf(
             "Kirana", "Medical", "Apparel", "Electronics", "Mobile",
             "Financial Services", "Insurance", "Digital", "Agriculture",
@@ -121,7 +115,6 @@ class VendorCreateProfileFragment : Fragment() {
 
         etVendorPhone.setText(user.phoneNumber ?: "")
 
-        // EDIT MODE DETECTION
         db.collection("vendors").document(uid).get()
             .addOnSuccessListener { doc ->
                 if (doc.exists()) {
@@ -148,9 +141,7 @@ class VendorCreateProfileFragment : Fragment() {
                         }
                         imagePath.isNotBlank() -> {
                             val file = File(imagePath)
-                            if (file.exists()) {
-                                imgVendorProfile.setImageURI(Uri.fromFile(file))
-                            }
+                            if (file.exists()) imgVendorProfile.setImageURI(Uri.fromFile(file))
                         }
                     }
 
@@ -159,10 +150,8 @@ class VendorCreateProfileFragment : Fragment() {
                 }
             }
 
-        // Image picker
         btnVendorCamera.setOnClickListener { showImagePickerDialog() }
 
-        // SAVE / UPDATE
         btnCreateVendorProfile.setOnClickListener {
             val ownerName = etOwnerName.text.toString().trim()
             val businessEmail = etBusinessEmail.text.toString().trim()
@@ -189,15 +178,13 @@ class VendorCreateProfileFragment : Fragment() {
             if (businessCategory.isEmpty()) {
                 actBusinessCategory.error = "Business category is required"
                 hasError = true
-            } else {
-                actBusinessCategory.error = null
-            }
+            } else actBusinessCategory.error = null
+
             if (businessType.isEmpty()) {
                 actBusinessType.error = "Business type is required"
                 hasError = true
-            } else {
-                actBusinessType.error = null
-            }
+            } else actBusinessType.error = null
+
             if (businessEmail.isNotEmpty() &&
                 !android.util.Patterns.EMAIL_ADDRESS.matcher(businessEmail).matches()
             ) {
@@ -232,9 +219,7 @@ class VendorCreateProfileFragment : Fragment() {
                 "updatedAt" to FieldValue.serverTimestamp()
             )
 
-            if (!isEditMode) {
-                vendorMap["createdAt"] = FieldValue.serverTimestamp()
-            }
+            if (!isEditMode) vendorMap["createdAt"] = FieldValue.serverTimestamp()
 
             db.collection("vendors")
                 .document(uid)
@@ -246,20 +231,18 @@ class VendorCreateProfileFragment : Fragment() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    // Clear cache
-                    ProfileCache.name = null
-                    ProfileCache.shop = null
-                    ProfileCache.imagePath = null
-                    ProfileCache.imageBase64 = null
-                    DashboardCache.vendorName = null
-
-                    findNavController().navigate(
-                        R.id.vendorDashboardFragment,
-                        null,
-                        NavOptions.Builder()
-                            .setPopUpTo(R.id.nav_graph, true)
-                            .build()
-                    )
+                    if (isEditMode) {
+                        findNavController().previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("profile_updated", true)
+                        findNavController().popBackStack()
+                    } else {
+                        findNavController().navigate(
+                            R.id.vendorDashboardFragment,
+                            null,
+                            NavOptions.Builder().setPopUpTo(R.id.nav_graph, true).build()
+                        )
+                    }
                 }
                 .addOnFailureListener { e ->
                     Toast.makeText(requireContext(), "Failed: ${e.message}", Toast.LENGTH_LONG).show()
@@ -285,11 +268,9 @@ class VendorCreateProfileFragment : Fragment() {
     private fun saveBitmapToInternalStorage(bitmap: Bitmap): String {
         val user = auth.currentUser ?: return ""
         val file = File(requireContext().filesDir, "vendor_profile_${user.uid}.jpg")
-
         FileOutputStream(file).use {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 90, it)
         }
-
         return file.absolutePath
     }
 
@@ -303,9 +284,7 @@ class VendorCreateProfileFragment : Fragment() {
                 (maxSide * ratio).toInt().coerceAtLeast(1) to maxSide
             }
             Bitmap.createScaledBitmap(bitmap, newW, newH, true)
-        } else {
-            bitmap
-        }
+        } else bitmap
 
         val output = ByteArrayOutputStream()
         scaled.compress(Bitmap.CompressFormat.JPEG, 45, output)

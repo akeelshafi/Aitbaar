@@ -235,6 +235,44 @@
                         </LinearLayout>
                     </androidx.cardview.widget.CardView>
 
+                    <!-- Invite Customer -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/inviteCustomerCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginBottom="14dp"
+                        app:cardBackgroundColor="@android:color/white"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="2dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
+                            android:paddingHorizontal="18dp">
+
+                            <ImageView
+                                android:layout_width="22dp"
+                                android:layout_height="22dp"
+                                android:src="@drawable/share"
+                                app:tint="#5B6B7A" />
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="22dp"
+                                android:layout_marginHorizontal="16dp"
+                                android:background="#E0E6ED" />
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Invite Customer"
+                                android:textStyle="bold"
+                                android:textColor="#233C73"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+                    </androidx.cardview.widget.CardView>
+
                     <!-- App Version -->
                     <androidx.cardview.widget.CardView
                         android:layout_width="match_parent"
@@ -251,7 +289,7 @@
                             android:paddingHorizontal="18dp">
 
                             <ImageView
-                                android:layout_width="22dp"
+                                android:layout_width="18dp"
                                 android:layout_height="22dp"
                                 android:src="@drawable/version"
                                 app:tint="#5B6B7A" />

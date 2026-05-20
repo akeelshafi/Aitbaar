@@ -9,9 +9,11 @@ import android.provider.ContactsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -30,6 +32,9 @@ class SelectCustomerFragment : Fragment() {
 
     private lateinit var adapter: CustomerAdapter
     private val db by lazy { FirebaseFirestore.getInstance() }
+
+    // Full list from contacts + aitbaar mapping
+    private var allCustomers: List<Customer> = emptyList()
 
     private val contactPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -56,7 +61,7 @@ class SelectCustomerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler = view.findViewById<RecyclerView>(R.id.rvCustomers)
-        val etSearchCustomer = view.findViewById<android.widget.EditText>(R.id.etSearchCustomer)
+        val etSearchCustomer = view.findViewById<EditText>(R.id.etSearchCustomer)
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
         adapter = CustomerAdapter(
@@ -78,7 +83,11 @@ class SelectCustomerFragment : Fragment() {
         )
         recycler.adapter = adapter
 
-        etSearchCustomer.isEnabled = false
+        // Enable search and wire filtering
+        etSearchCustomer.isEnabled = true
+        etSearchCustomer.doAfterTextChanged { text ->
+            filterCustomersByName(text?.toString().orEmpty())
+        }
 
         requestContactsAndLoad()
 
@@ -104,6 +113,7 @@ class SelectCustomerFragment : Fragment() {
         val contacts = loadPhoneContacts()
         if (contacts.isEmpty()) {
             Toast.makeText(requireContext(), "No contacts found", Toast.LENGTH_SHORT).show()
+            allCustomers = emptyList()
             adapter.submitList(emptyList())
             return
         }
@@ -124,7 +134,7 @@ class SelectCustomerFragment : Fragment() {
                     }
                     .toMap()
 
-                val mapped = contacts.map { contact ->
+                allCustomers = contacts.map { contact ->
                     val normalized = normalizePhone(contact.phone)
                     val registered = registeredByPhone[normalized]
                     contact.copy(
@@ -138,7 +148,8 @@ class SelectCustomerFragment : Fragment() {
                         .thenBy { (it.aitbaarName ?: it.name).lowercase() }
                 )
 
-                adapter.submitList(mapped)
+                // Show full list initially
+                adapter.submitList(allCustomers)
             }
             .addOnFailureListener {
                 Toast.makeText(
@@ -146,8 +157,25 @@ class SelectCustomerFragment : Fragment() {
                     "Could not check Aitbaar users. Showing contacts only.",
                     Toast.LENGTH_SHORT
                 ).show()
-                adapter.submitList(contacts)
+                allCustomers = contacts
+                adapter.submitList(allCustomers)
             }
+    }
+
+    private fun filterCustomersByName(query: String) {
+        val q = query.trim().lowercase()
+        if (q.isBlank()) {
+            adapter.submitList(allCustomers)
+            return
+        }
+
+        val filtered = allCustomers.filter { customer ->
+            val contactName = customer.name.lowercase()
+            val aitbaarName = customer.aitbaarName?.lowercase().orEmpty()
+            contactName.contains(q) || aitbaarName.contains(q)
+        }
+
+        adapter.submitList(filtered)
     }
 
     private fun loadPhoneContacts(): List<Customer> {
