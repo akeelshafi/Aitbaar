@@ -23,6 +23,7 @@ import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.concurrent.TimeUnit
+import com.akeel.aitbaar.firebase.FcmTokenManager
 
 class OtpVerifyFragment : Fragment() {
 
@@ -39,7 +40,7 @@ class OtpVerifyFragment : Fragment() {
     private lateinit var tvVerifyBtnText: TextView
     private lateinit var tvResend: TextView
 
-    // ✅ updated when OTP is sent
+    // updated when OTP is sent
     private var currentVerificationId: String = "PENDING"
 
     override fun onCreateView(
@@ -71,13 +72,13 @@ class OtpVerifyFragment : Fragment() {
         btnVerify = view.findViewById(R.id.btnVerifyOtp)
         tvVerifyBtnText = view.findViewById(R.id.tvVerifyBtnText)
 
-        // ✅ Show phone number
+        // Show phone number
         tvOtpPhone.text = args.phoneNumber
 
-        // ✅ initially resend disabled (until OTP is sent)
+        // initially resend disabled (until OTP is sent)
         setResendDisabled()
 
-        // ✅ send OTP from this fragment
+        //  send OTP from this fragment
         sendOtp(args.phoneNumber)
 
         fun getOtpCode(): String {
@@ -89,12 +90,12 @@ class OtpVerifyFragment : Fragment() {
                     otp6.text.toString().trim()
         }
 
-        // ✅ OTP UX
+        //  OTP UX
         setupOtpInputs(otp1, otp2, otp3, otp4, otp5, otp6) { code ->
             verifyOtpAndLogin(code)
         }
 
-        // ✅ Verify button
+        //  Verify button
         btnVerify.setOnClickListener {
             val code = getOtpCode()
             if (code.length != 6) {
@@ -104,16 +105,16 @@ class OtpVerifyFragment : Fragment() {
             verifyOtpAndLogin(code)
         }
 
-        // ✅ Resend click
+        //  Resend click
         tvResend.setOnClickListener {
             if (!canResend) return@setOnClickListener
 
-            // ✅ Disable immediately & restart timer only when code is actually sent
+            //  Disable immediately & restart timer only when code is actually sent
             setResendDisabled()
 
             val token = OtpSession.resendToken
             if (token == null) {
-                // ✅ fallback
+                //  fallback
                 Toast.makeText(requireContext(), "Sending OTP again...", Toast.LENGTH_SHORT).show()
                 sendOtp(args.phoneNumber)
             } else {
@@ -122,7 +123,7 @@ class OtpVerifyFragment : Fragment() {
         }
     }
 
-    // ✅ Button UI (Verifying inside button)
+    // Button UI (Verifying inside button)
     private fun showVerifyingOnButton() {
         btnVerify.isEnabled = false
         btnVerify.alpha = 0.7f
@@ -135,7 +136,7 @@ class OtpVerifyFragment : Fragment() {
         tvVerifyBtnText.text = "Verify"
     }
 
-    // ✅ Resend UI helpers
+    // Resend UI helpers
     private fun setResendDisabled() {
         canResend = false
         tvResend.isEnabled = false
@@ -167,7 +168,7 @@ class OtpVerifyFragment : Fragment() {
         }.start()
     }
 
-    // ✅ send OTP (first time or fallback)
+    //  send OTP (first time or fallback)
     private fun sendOtp(phoneNumber: String) {
 
         val options = PhoneAuthOptions.newBuilder(auth)
@@ -184,14 +185,12 @@ class OtpVerifyFragment : Fragment() {
                     Toast.makeText(requireContext(), "OTP Failed: ${e.message}", Toast.LENGTH_LONG)
                         .show()
 
-                    // allow resend again
                     countDownTimer?.cancel()
                     tvResend.text = "Resend Code"
                     tvResend.isEnabled = true
                     canResend = true
                     tvResend.setTextColor(resources.getColor(R.color.aitbaar_blue, null))
                 }
-
                 override fun onCodeSent(
                     verificationId: String,
                     token: PhoneAuthProvider.ForceResendingToken
@@ -199,9 +198,9 @@ class OtpVerifyFragment : Fragment() {
                     currentVerificationId = verificationId
                     OtpSession.resendToken = token
 
-                    Toast.makeText(requireContext(), "OTP Sent ✅", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "OTP Sent", Toast.LENGTH_SHORT).show()
 
-                    // ✅ timer starts ONLY here (NO restart bug)
+                    // timer starts ONLY here (NO restart bug)
                     startResendTimer()
                 }
             })
@@ -210,7 +209,7 @@ class OtpVerifyFragment : Fragment() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    // ✅ resend OTP with token
+    //  resend OTP with token
     private fun resendOtp(
         phoneNumber: String,
         token: PhoneAuthProvider.ForceResendingToken
@@ -242,9 +241,9 @@ class OtpVerifyFragment : Fragment() {
                     currentVerificationId = verificationId
                     OtpSession.resendToken = token
 
-                    Toast.makeText(requireContext(), "OTP Resent ✅", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "OTP Resent", Toast.LENGTH_SHORT).show()
 
-                    // ✅ timer starts ONLY here
+                    //  timer starts ONLY here
                     startResendTimer()
                 }
             })
@@ -253,13 +252,13 @@ class OtpVerifyFragment : Fragment() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-    // ✅ Verify OTP -> Login -> Check Profile -> Navigate
+    // Verify OTP -> Login -> Check Profile -> Navigate
     private fun verifyOtpAndLogin(code: String) {
         if (isVerifying) return
         if (code.length != 6) return
 
         if (currentVerificationId == "PENDING") {
-            Toast.makeText(requireContext(), "OTP is being sent... wait ✅", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "OTP is being sent... wait", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -296,8 +295,11 @@ class OtpVerifyFragment : Fragment() {
                 if (role == "vendor") {
                     db.collection("vendors").document(uid).get()
                         .addOnSuccessListener { doc ->
-                            // ✅ Don’t reset verify button here (avoid flicker)
+                            // Don’t reset verify button here (avoid flicker)
                             if (doc.exists()) {
+
+                                FcmTokenManager.saveToken()
+
                                 findNavController().navigate(
                                     R.id.vendorDashboardFragment,
                                     null,
@@ -321,6 +323,9 @@ class OtpVerifyFragment : Fragment() {
                     db.collection("customers").document(uid).get()
                         .addOnSuccessListener { doc ->
                             if (doc.exists()) {
+
+                                FcmTokenManager.saveToken()
+
                                 findNavController().navigate(
                                     R.id.customerDashboardFragment,
                                     null,
@@ -344,7 +349,7 @@ class OtpVerifyFragment : Fragment() {
             }
     }
 
-    // ✅ OTP Boxes UX (auto move + back + paste)
+    //  OTP Boxes UX (auto move + back + paste)
     private fun setupOtpInputs(
         otp1: EditText,
         otp2: EditText,
@@ -365,7 +370,7 @@ class OtpVerifyFragment : Fragment() {
                     otp6.text.toString().trim()
         }
 
-        // ✅ paste in otp1
+        //  paste in otp1
         otp1.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -407,7 +412,7 @@ class OtpVerifyFragment : Fragment() {
         nextMove(otp5, otp6)
         nextMove(otp6, null)
 
-        // ✅ backspace move previous
+        //  backspace move previous
         for (i in 1 until fields.size) {
             val current = fields[i]
             val prev = fields[i - 1]

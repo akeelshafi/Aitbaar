@@ -29,6 +29,8 @@ import com.google.firebase.firestore.FirebaseFirestore
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import com.akeel.aitbaar.firebase.FcmTokenManager
+
 
 class VendorCreateProfileFragment : Fragment() {
 
@@ -227,9 +229,10 @@ class VendorCreateProfileFragment : Fragment() {
                 .addOnSuccessListener {
                     Toast.makeText(
                         requireContext(),
-                        if (isEditMode) "Profile Updated ✅" else "Profile Created ✅",
+                        if (isEditMode) "Profile Updated" else "Profile Created",
                         Toast.LENGTH_SHORT
                     ).show()
+                    FcmTokenManager.saveToken()
 
                     if (isEditMode) {
                         findNavController().previousBackStackEntry

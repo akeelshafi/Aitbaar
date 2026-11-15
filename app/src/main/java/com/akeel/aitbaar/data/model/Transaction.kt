@@ -6,7 +6,9 @@ data class Transaction(
     val item: String,
     val amount: Int,
     val date: String,
-    val status: Status
+    val status: Status,
+    val createdAtMillis: Long = 0L
+
 )
 
 enum class Status {

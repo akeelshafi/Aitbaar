@@ -1,6 +1,7 @@
 package com.akeel.aitbaar.ui.vendor.profile
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -9,7 +10,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
@@ -45,7 +45,10 @@ class VendorProfileFragment : Fragment(R.layout.fragment_vendor_profile) {
             .setColorFilter(requireContext().getColor(R.color.blue))
 
         view.findViewById<View>(R.id.helpSupportCard).setOnClickListener {
-            Toast.makeText(requireContext(), "Help & Support coming soon", Toast.LENGTH_SHORT).show()
+            val url = "https://akeelshafi.github.io/Aitbaar/account-deletion.html"
+
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
         }
 
         view.findViewById<View>(R.id.inviteCustomerCard).setOnClickListener {

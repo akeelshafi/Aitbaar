@@ -25,6 +25,8 @@ import com.google.firebase.firestore.SetOptions
 import java.io.File
 import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
+import com.akeel.aitbaar.firebase.FcmTokenManager
+
 
 class CustomerCreateProfileFragment : Fragment() {
 
@@ -212,9 +214,10 @@ class CustomerCreateProfileFragment : Fragment() {
                 if (!isAdded) return@addOnSuccessListener
                 Toast.makeText(
                     requireContext(),
-                    if (isEditMode) "Profile Updated ✅" else "Customer Profile Saved ✅",
+                    if (isEditMode) "Profile Updated" else "Customer Profile Saved",
                     Toast.LENGTH_SHORT
                 ).show()
+                FcmTokenManager.saveToken()
 
                 findNavController().navigate(
                     R.id.customerDashboardFragment,

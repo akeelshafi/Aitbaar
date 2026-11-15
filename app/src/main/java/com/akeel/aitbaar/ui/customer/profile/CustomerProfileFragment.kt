@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.NavOptions
@@ -18,6 +17,8 @@ import com.akeel.aitbaar.ui.customer.CustomerDataViewModel
 import com.akeel.aitbaar.ui.customer.CustomerNavHelper
 import com.google.firebase.auth.FirebaseAuth
 import java.io.File
+import android.content.Intent
+import android.net.Uri
 
 class CustomerProfileFragment : Fragment(R.layout.fragment_customer_profile) {
 
@@ -63,7 +64,10 @@ class CustomerProfileFragment : Fragment(R.layout.fragment_customer_profile) {
         CustomerNavHelper.highlight(this, view, R.id.tabProfile)
 
         view.findViewById<View>(R.id.helpSupportCard).setOnClickListener {
-            Toast.makeText(requireContext(), "Help & Support coming soon", Toast.LENGTH_SHORT).show()
+            val url = "https://akeelshafi.github.io/Aitbaar/account-deletion.html"
+
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            startActivity(intent)
         }
 
         btnEditProfile.setOnClickListener {

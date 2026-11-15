@@ -96,6 +96,7 @@ class CustomerDataViewModel : ViewModel() {
                 updates["rejectedAt"] = FieldValue.serverTimestamp()
                 updates["rejectionReason"] = reason ?: "Other"
             }
+
             else -> Unit
         }
 
@@ -158,6 +159,7 @@ class CustomerDataViewModel : ViewModel() {
                             vendorNameCache[vendorId] = vendorName
                             null
                         }
+
                         else -> vendorId
                     }
                 }.toSet()
@@ -209,7 +211,8 @@ class CustomerDataViewModel : ViewModel() {
             .addSnapshotListener { snapshot, _ ->
                 val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
                 paymentRecords = snapshot?.documents.orEmpty().map { doc ->
-                    val vendorName = doc.getString("vendorName").orEmpty().ifBlank { "Unknown Vendor" }
+                    val vendorName =
+                        doc.getString("vendorName").orEmpty().ifBlank { "Unknown Vendor" }
                     val amount = (doc.getLong("amount") ?: 0L).toInt()
                     val createdAt = doc.getTimestamp("createdAt")
                     val date = createdAt?.toDate()?.let { formatter.format(it) }.orEmpty()
@@ -272,7 +275,8 @@ class CustomerDataViewModel : ViewModel() {
                 .document(vendorId)
                 .get()
                 .addOnSuccessListener { doc ->
-                    names[vendorId] = doc.getString("shopName").orEmpty().ifBlank { "Unknown Vendor" }
+                    names[vendorId] =
+                        doc.getString("shopName").orEmpty().ifBlank { "Unknown Vendor" }
                     done()
                 }
                 .addOnFailureListener {
@@ -291,14 +295,16 @@ class CustomerDataViewModel : ViewModel() {
         val acceptedTransactions = allTransactions.filter { it.status == Status.ACCEPTED }
         val paidTransactions = allTransactions.filter { it.isPayment || it.status == Status.PAID }
 
-        val totalDue = (acceptedTransactions.sumOf { it.amount } - paidTransactions.sumOf { it.amount })
-            .coerceAtLeast(0)
+        val totalDue =
+            (acceptedTransactions.sumOf { it.amount } - paidTransactions.sumOf { it.amount })
+                .coerceAtLeast(0)
 
         val vendorBalances = allTransactions
             .groupBy { it.vendorName }
             .map { (vendorName, records) ->
                 val accepted = records.filter { it.status == Status.ACCEPTED }.sumOf { it.amount }
-                val paid = records.filter { it.isPayment || it.status == Status.PAID }.sumOf { it.amount }
+                val paid =
+                    records.filter { it.isPayment || it.status == Status.PAID }.sumOf { it.amount }
                 val due = (accepted - paid).coerceAtLeast(0)
                 CustomerBalance(name = vendorName, balance = due)
             }
@@ -332,8 +338,9 @@ class CustomerDataViewModel : ViewModel() {
             },
             vendorBalances = vendorBalances,
             totalDue = totalDue,
-            vendorCount = allTransactions.map { it.vendorId }.filter { it.isNotBlank() }.distinct().count(),
-            loadedOnce = true
+            vendorCount = vendorBalances.count {
+                it.balance > 0
+            }, loadedOnce = true
         )
     }
 

@@ -42,7 +42,7 @@ class PhoneLoginFragment : Fragment() {
 
             val fullPhone = "+91$phone"
 
-            // ✅ Just navigate fast to OTP screen
+            //  Just navigate fast to OTP screen
             val action = PhoneLoginFragmentDirections
                 .actionCustomerPhoneLoginFragmentToCustomerOtpVerifyFragment2(
                     verificationId = "PENDING",

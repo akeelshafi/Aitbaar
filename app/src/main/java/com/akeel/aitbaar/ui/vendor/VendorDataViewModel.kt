@@ -103,9 +103,10 @@ class VendorDataViewModel : ViewModel() {
                         item = itemForUi,
                         amount = (doc.getLong("amount") ?: 0L).toInt(),
                         date = createdAt?.toDate()?.let { formatter.format(it) }.orEmpty(),
-                        status = status
+                        status = status,
+                        createdAtMillis = createdAt?.toDate()?.time ?: 0L
                     )
-                }.sortedByDescending { it.id }
+                }
                 publish()
             }
 
@@ -130,9 +131,10 @@ class VendorDataViewModel : ViewModel() {
                         item = "Payment Received",
                         amount = (doc.getLong("amount") ?: 0L).toInt(),
                         date = createdAt?.toDate()?.let { formatter.format(it) }.orEmpty(),
-                        status = Status.PAID
+                        status = Status.PAID,
+                        createdAtMillis = createdAt?.toDate()?.time ?: 0L
                     )
-                }.sortedByDescending { it.id }
+                }
 
                 publish()
             }
@@ -140,8 +142,8 @@ class VendorDataViewModel : ViewModel() {
 
     private fun publish() {
         val accepted = txList.filter { it.status == Status.ACCEPTED }
-        val totalAccepted = accepted.sumOf { it.amount }
-        val acceptedCustomerCount = accepted.map { it.customerName }.distinct().count()
+       // val totalAccepted = accepted.sumOf { it.amount }
+       // val acceptedCustomerCount = accepted.map { it.customerName }.distinct().count()
 
         val allCustomerNames = txList.map { it.customerName }.filter { it.isNotBlank() }.distinct()
         val balances = allCustomerNames.map { name ->
@@ -153,8 +155,12 @@ class VendorDataViewModel : ViewModel() {
             )
         }.sortedBy { it.name.lowercase(Locale.getDefault()) }
 
-        val mergedTransactions = (txList + paymentTxList).sortedByDescending { it.id }
+        val acceptedCustomerCount = balances.count {
+            it.balance > 0
+        }
 
+        val mergedTransactions = (txList + paymentTxList)
+            .sortedByDescending { it.createdAtMillis }
         _uiState.value = VendorUiState(
             loading = false,
             vendorName = vendorName,
@@ -164,7 +170,7 @@ class VendorDataViewModel : ViewModel() {
             recentTransactions = mergedTransactions.take(4),
             allTransactions = mergedTransactions,
             customerBalances = balances,
-            totalAcceptedAmount = totalAccepted,
+            totalAcceptedAmount = balances.sumOf { it.balance },
             acceptedCustomerCount = acceptedCustomerCount,
             loadedOnce = true
         )
